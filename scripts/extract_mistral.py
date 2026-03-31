@@ -36,6 +36,7 @@ OCR_PDFS = [
     "Biologie 2021 UMFCD.pdf",
     "Biologie 2022 UMFCD.pdf",
     "Carte grile bio 2023 (1).pdf",
+    "BIOL 2025- .pdf",
 ]
 
 MAX_FILE_SIZE_MB = 45

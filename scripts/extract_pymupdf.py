@@ -15,7 +15,6 @@ PDFS_WITH_TEXT = [
     "Biologie 2014 UMFCD.pdf",
     "Biologie 2015 UMFCD.pdf",
     "Biologie 2017 UMFCD.pdf",
-    "BIOL 2025- .pdf",
 ]
 
 
