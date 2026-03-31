@@ -613,7 +613,6 @@ def parse_file(filepath: Path) -> dict:
         # --- TEST N header ---
         m_test = RE_TEST_HEADER.match(stripped)
         if m_test:
-            test_num = int(m_test.group(1))
             test_type = "general_test" if in_general_tests else "chapter_test"
             title = stripped
             topic_slug = "general" if in_general_tests else (current_topic or "general")
