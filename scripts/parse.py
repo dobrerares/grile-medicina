@@ -64,14 +64,14 @@ RE_PAGE_NUMBER = re.compile(r"^\s*\d{1,3}\s*$")
 # Complement type header variants — very permissive
 RE_COMPLEMENT_HEADER = re.compile(
     r"^\s*(?:ÎNTREBĂRI\s+TIP\s+)?COMPLE\s*M\s*E?\s*N?\s*T\s+"
-    r"(S\s*I\s*M\s*P\s*L\s*U|U\s*N\s*I\s*C|T\s*J\s*N\s*I\s*C|"
+    r"(S\s*I\s*M\s*P\s*L\s*U|S\s*I\s*M\s*P\s*T\s*U|U\s*N\s*I\s*C|T\s*J\s*N\s*I\s*C|"
     r"G\s*R\s*U\s*P\s*A\s*T|M\s*U\s*L\s*T\s*I\s*P\s*L\s*U|"
     r"C\s*O\s*M\s*P\s*U\s*S|M\s*U\s*L\s*T\s*U\s*P\s*L\s*U)",
     re.IGNORECASE,
 )
 
 # RĂSPUNSURI / RASPUNSURI header
-RE_RASPUNSURI = re.compile(r"^\s*R[ĂAÃ]SPUNSURI\s*:?\s*$", re.IGNORECASE)
+RE_RASPUNSURI = re.compile(r"^\s*R[ĂAÃă]spunsuri\b", re.IGNORECASE)
 
 # Author line
 RE_AUTHOR = re.compile(
@@ -86,10 +86,10 @@ RE_QUESTION_START = re.compile(r"^\s*(\d{1,3})\s*[.\)]\s*(.*)$")
 RE_CHOICE_SIMPLU = re.compile(r"^\s*([A-Ea-e])\s*[.\)]\s*(.*)$")
 
 # Choice for complement grupat: 1. / 1) / 1.text (digits 1-4)
-RE_CHOICE_GRUPAT = re.compile(r"^\s*([1-4])\s*[.\)]\s*(.*)$")
+RE_CHOICE_GRUPAT = re.compile(r"^\s*([1-4])\s*[-.\)]\s*(.*)$")
 
 # Test header: TEST 1 / TEST1 / TESTÓ / TEST GENERAL etc.
-RE_TEST_HEADER = re.compile(r"^\s*TEST\s*[OÓ]?\s*(\d+)\s*$", re.IGNORECASE)
+RE_TEST_HEADER = re.compile(r"^\s*TEST(?:UL)?\s*(?:NR\s*\.?\s*)?[OÓ]?\s*(\d+)\s*$", re.IGNORECASE)
 RE_TEST_GENERAL_HEADER = re.compile(r"^\s*TEST\s+GENERAL\s*(\d*)\s*$", re.IGNORECASE)
 RE_TESTE_GENERALE = re.compile(r"^\s*(?:\d+\s*\.\s*)?TESTE\s+GENERAL", re.IGNORECASE)
 RE_TESTE_PE_CAPITOLE = re.compile(r"^\s*(?:\d+\s*\.\s*|L\s+)?TESTE\s+RECAPITULATIV", re.IGNORECASE)
@@ -117,11 +117,20 @@ RE_ANSWER_CONTINUATION = re.compile(
     r"^\s*(?:pag|pg|fig|\.fig|\.pag|\(pag|\(pg)", re.IGNORECASE
 )
 
+# Inline answer pattern for multi-column lines: "1 C pg. 11 9 D pg. 15"
+RE_ANSWER_INLINE = re.compile(r"(\d{1,3})\s*\.?\s*([A-Ea-e])\s*(?:pg\.?\s*[\d,\s]+)?")
+
+# Pattern to strip "Răspunsuri complement simplu/grupat" prefix and get remainder
+RE_RASPUNSURI_PREFIX = re.compile(
+    r"^\s*R[ĂAÃă]spunsuri\s+(?:complement\s+\w+\s*)?",
+    re.IGNORECASE,
+)
+
 
 def classify_complement(text: str) -> str:
     """Classify a complement header match as simplu or grupat."""
     collapsed = re.sub(r"\s+", "", text).upper()
-    if collapsed in ("SIMPLU", "UNIC", "TJNIC"):
+    if collapsed in ("SIMPLU", "SIMPTU", "UNIC", "TJNIC"):
         return "complement_simplu"
     return "complement_grupat"
 
@@ -174,15 +183,15 @@ def is_complement_header(line: str) -> tuple[bool, str | None]:
     stripped = line.strip().rstrip(":. ")
     collapsed = re.sub(r"\s+", "", stripped.lower())
     if collapsed in (
-        "complementsimplu", "complementunic", "complementtjnic",
+        "complementsimplu", "complementsimptu", "complementunic", "complementtjnic",
         "complementgrupat", "complementmultiplu", "complementcompus",
         "complementmultuplu",
         # OCR variants
-        "compementsimplu", "compementgrupat", "compementmultiplu",
+        "compementsimplu", "compementsimptu", "compementgrupat", "compementmultiplu",
         "compementcompus",
     ):
-        if collapsed in ("complementsimplu", "complementunic", "complementtjnic",
-                         "compementsimplu"):
+        if collapsed in ("complementsimplu", "complementsimptu", "complementunic",
+                         "complementtjnic", "compementsimplu", "compementsimptu"):
             return True, "complement_simplu"
         return True, "complement_grupat"
 
@@ -280,6 +289,13 @@ def parse_answer_lines(lines: list[str]) -> dict[int, tuple[str, str | None]]:
             if parsed_both and len(temp_answers) >= 2:
                 answers.update(temp_answers)
                 continue
+
+        # Fallback: use findall for multi-column lines like "1 C pg. 11 9 D pg. 15"
+        inline_matches = RE_ANSWER_INLINE.findall(stripped)
+        if len(inline_matches) >= 2:
+            for num_str, letter in inline_matches:
+                answers[int(num_str)] = (letter.upper(), None)
+            continue
 
         # Try standard answer line
         m = RE_ANSWER_LINE.match(stripped)
@@ -488,6 +504,10 @@ def parse_file(filepath: Path) -> dict:
         stripped = line.strip()
         i += 1
 
+        # Strip markdown headers (Mistral OCR output)
+        if stripped.startswith("#"):
+            stripped = stripped.lstrip("#").strip()
+
         # Skip page markers
         if RE_PAGE_MARKER.match(stripped):
             continue
@@ -547,6 +567,11 @@ def parse_file(filepath: Path) -> dict:
             in_answers = True
             answer_lines_buffer = []
             pending_new_section = True  # After answers, next topic/complement = new test
+            # Extract inline answer content from the same line (e.g.
+            # "Răspunsuri complement simplu 8 B pg. 15")
+            remainder = RE_RASPUNSURI_PREFIX.sub("", stripped).strip()
+            if remainder and RE_ANSWER_INLINE.search(remainder):
+                answer_lines_buffer.append(remainder)
             continue
 
         # --- Answer accumulation mode ---
