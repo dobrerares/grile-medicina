@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+extracted/pymupdf/*.md
+extracted/mistral/*.json
+extracted/normalized/
+parsed/*.json
+parsed/deduped/
+output/*.json
+pdfs/*.pdf
+*.pyc
+.env
+.direnv/
