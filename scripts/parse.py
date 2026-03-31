@@ -421,6 +421,13 @@ def parse_file(filepath: Path) -> dict:
         nonlocal current_question
         if current_question and current_test:
             current_question["text"] = current_question["text"].strip()
+            # Discard zero-choice "questions" that are actually answer lines
+            # (e.g. "Apg.6", "Dpg.7" — a letter immediately followed by pg/pag)
+            if not current_question["choices"] and re.search(
+                r"[A-Ea-e]\s*p(?:a)?g", current_question["text"]
+            ):
+                current_question = None
+                return
             current_test["questions"].append(current_question)
         current_question = None
 
@@ -674,6 +681,7 @@ def parse_file(filepath: Path) -> dict:
             if topic_slug != "unknown":
                 current_topic_title = full_title
                 current_topic = topic_slug
+                in_general_tests = False  # chapter topic overrides general flag
                 pending_new_section = True
             continue
 
