@@ -20,7 +20,7 @@ import time
 from pathlib import Path
 
 import fitz  # PyMuPDF
-from mistralai import Mistral
+from mistralai.client import Mistral
 
 # PDFs known to be image-only (need OCR)
 OCR_PDFS = [
