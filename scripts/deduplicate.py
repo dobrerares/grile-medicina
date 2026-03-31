@@ -10,7 +10,6 @@ Usage:
 """
 
 import json
-import shutil
 from pathlib import Path
 
 from rapidfuzz import fuzz

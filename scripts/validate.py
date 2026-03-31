@@ -2,7 +2,6 @@
 """Validate parsed question JSON files for structural correctness."""
 
 import json
-import os
 import sys
 from pathlib import Path
 
