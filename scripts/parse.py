@@ -31,7 +31,7 @@ TOPIC_PATTERNS = [
     (r"SISTEM(?:UL)?\s*NERVOS|NERVOS", "sistemul_nervos"),
     (r"ANALIZATOR", "analizatorii"),
     (r"GLAND|ENDOCRIN", "glande_endocrine"),
-    (r"MIȘCAR|MISCAR|OSOS|MUSCUL|OSTEO", "miscarea"),
+    (r"MIȘCAR|MISCAR|OSOS|MUSCUL|OSTEO|LOCOMOTOR", "miscarea"),
     (r"DIGEST|ABSORB", "digestia"),
     (r"CIRCUL", "circulatia"),
     (r"RESPIR", "respiratia"),
@@ -71,7 +71,27 @@ RE_COMPLEMENT_HEADER = re.compile(
 )
 
 # RĂSPUNSURI / RASPUNSURI header
-RE_RASPUNSURI = re.compile(r"^\s*R[ĂAÃă]spunsuri\b", re.IGNORECASE)
+RE_RASPUNSURI = re.compile(
+    r"^\s*\|?\s*(?:Lista\s+)?R[ĂAÃăÅÄåäÂÁâáĀā]spunsuri(?:lor)?\b", re.IGNORECASE
+)
+# OCR-corrupted variants from PyMuPDF (2012): nASpUNSURI, NASpUNSURI, nAspuNSURr, etc.
+RE_RASPUNSURI_OCR = re.compile(
+    r"^\s*[nN][aA][sS][pP][uUtT][nNvV][sS][uU][rR][iIlr]\s*:?\s*$", re.IGNORECASE
+)
+# Space-separated OCR (2013): "r ă sp u n su r i"
+RE_RASPUNSURI_SPACED = re.compile(
+    r"^\s*r\s+[ăa]\s*sp\s*u\s*n\s*su\s*r\s*i\s*$", re.IGNORECASE
+)
+# Misspelled OCR (2020): "Råspunsurl"
+RE_RASPUNSURI_MISSPELL = re.compile(
+    r"^\s*R[åăa]spunsur[li]\s*$", re.IGNORECASE
+)
+# Truncated OCR (2010): "SPUNSURI" (missing "RĂ" prefix)
+# Also (2023): "ĂSPUNSURI" (missing "R" prefix)
+# Also (2012): "Rtrspunsuri" (severely corrupted diacritical)
+RE_RASPUNSURI_TRUNCATED = re.compile(
+    r"^\s*(?:SPUNSURI|[ĂAă]SPUNSURI|R\s*tr\s*spunsuri)\s*:?\s*$", re.IGNORECASE
+)
 
 # Author line
 RE_AUTHOR = re.compile(
@@ -89,8 +109,10 @@ RE_CHOICE_SIMPLU = re.compile(r"^\s*([A-Ea-e])\s*[.\)]\s*(.*)$")
 RE_CHOICE_GRUPAT = re.compile(r"^\s*([1-4])\s*[-.\)]\s*(.*)$")
 
 # Test header: TEST 1 / TEST1 / TESTÓ / TEST GENERAL etc.
-RE_TEST_HEADER = re.compile(r"^\s*TEST(?:UL)?\s*(?:NR\s*\.?\s*)?[OÓ]?\s*(\d+)\s*$", re.IGNORECASE)
-RE_TEST_GENERAL_HEADER = re.compile(r"^\s*TEST\s+GENERAL\s*(\d*)\s*$", re.IGNORECASE)
+RE_TEST_HEADER = re.compile(r"^\s*TEST(?:UL|ELE)?\s*(?:NR\s*\.?\s*)?[OÓ]?\s*(\d+)(?:\s+[ȘS]I\s+(\d+))?\s*$", re.IGNORECASE)
+RE_TEST_GENERAL_HEADER = re.compile(
+    r"^\s*TEST(?:UL)?\s+GENERAL\s*(?:NR\.?\s*)?(\d*)\s*$", re.IGNORECASE
+)
 RE_TESTE_GENERALE = re.compile(r"^\s*(?:\d+\s*\.\s*)?TESTE\s+GENERAL", re.IGNORECASE)
 RE_TESTE_PE_CAPITOLE = re.compile(r"^\s*(?:\d+\s*\.\s*|L\s+)?TESTE\s+RECAPITULATIV", re.IGNORECASE)
 
@@ -108,17 +130,18 @@ RE_TOPIC_HEADER = re.compile(
 
 # Answer line patterns
 RE_ANSWER_LINE = re.compile(
-    r"^\s*(\d{1,3})\s*[-.\s,)]+\s*([A-Ea-e])\s*[-.\s,)]*\s*(.*)?$"
+    r"^\s*(\d{1,3})\s*[-–.\s,)]+\s*([A-Ea-e])\s*[-–.\s,)/]*\s*(.*)?$"
 )
 RE_ANSWER_NOSEP = re.compile(
-    r"^\s*(\d{1,3})\s*([A-Ea-e])\s*[-.\s,)]*\s*(.*)?$"
+    r"^\s*(\d{1,3})\s*([A-Ea-e])\s*[-–.\s,)/]*\s*(.*)?$"
 )
 RE_ANSWER_CONTINUATION = re.compile(
     r"^\s*(?:pag|pg|fig|\.fig|\.pag|\(pag|\(pg)", re.IGNORECASE
 )
 
 # Inline answer pattern for multi-column lines: "1 C pg. 11 9 D pg. 15"
-RE_ANSWER_INLINE = re.compile(r"(\d{1,3})\s*\.?\s*([A-Ea-e])\s*(?:pg\.?\s*[\d,\s]+)?")
+# Also handles "1-A 30-D" and "1) C 31) D" formats
+RE_ANSWER_INLINE = re.compile(r"(\d{1,3})\s*[-.)]*\s*([A-Ea-e])(?:\s*(?:[-–/]?\s*(?:pag|pg|p)\.?\s*[\d,.\s\-–]+)?)")
 
 # Pattern to strip "Răspunsuri complement simplu/grupat" prefix and get remainder
 RE_RASPUNSURI_PREFIX = re.compile(
@@ -176,24 +199,71 @@ def is_topic_header_line(line: str) -> bool:
 
 def is_complement_header(line: str) -> tuple[bool, str | None]:
     """Check if a line is a complement type header."""
-    m = RE_COMPLEMENT_HEADER.match(line.strip())
-    if m:
-        return True, classify_complement(m.group(1))
+    stripped = line.strip()
 
-    stripped = line.strip().rstrip(":. ")
-    collapsed = re.sub(r"\s+", "", stripped.lower())
-    if collapsed in (
+    # Strip Roman numeral prefixes: "I. ...", "II. ..."
+    stripped_no_roman = re.sub(r"^[IVX]+\.\s*", "", stripped)
+
+    # Try the main regex on both original and Roman-stripped
+    for candidate in (stripped, stripped_no_roman):
+        m = RE_COMPLEMENT_HEADER.match(candidate)
+        if m:
+            return True, classify_complement(m.group(1))
+
+    # Collapsed form matching
+    base = stripped.rstrip(":. ")
+    collapsed = re.sub(r"\s+", "", base.lower())
+    CS_COLLAPSED = {
         "complementsimplu", "complementsimptu", "complementunic", "complementtjnic",
+        "compementsimplu", "compementsimptu",
+        # Truncated OCR: COMPLEMENT SIN, COMPLEMENT SIMPLIC, COMPLEMENTE
+        "complementsin", "complementsimplic", "complemente",
+        # Truncated OCR (2023): OMPLEMENT SIMPLU (missing "C")
+        "omplementsimplu", "omplementsimptu",
+        # Also: COMPLEMENTSIMPLII (OCR for SIMPLU→SIMPLII)
+        "complementsimplii",
+    }
+    CG_COLLAPSED = {
         "complementgrupat", "complementmultiplu", "complementcompus",
-        "complementmultuplu",
-        # OCR variants
-        "compementsimplu", "compementsimptu", "compementgrupat", "compementmultiplu",
-        "compementcompus",
-    ):
-        if collapsed in ("complementsimplu", "complementsimptu", "complementunic",
-                         "complementtjnic", "compementsimplu", "compementsimptu"):
+        "complementmultuplu", "complementgruni",
+        "compementgrupat", "compementmultiplu", "compementcompus",
+        # Truncated OCR: COMPLEMENT GR, COMPLEMENT GRUPA
+        "complementgr", "complementgrupa",
+        # Truncated OCR (2023): OMPLEMENT GRUPAT (missing "C")
+        "omplementgrupat", "omplementmultiplu", "omplementcompus",
+    }
+    if collapsed in CS_COLLAPSED | CG_COLLAPSED:
+        if collapsed in CS_COLLAPSED:
             return True, "complement_simplu"
         return True, "complement_grupat"
+    # Bare "COMPLEMENT" or "OMPLEMENT" with no type — default to simplu
+    if collapsed in ("complement", "complement(", "omplement", "omplement("):
+        return True, "complement_simplu"
+
+    # "Grile tip complement simplu/grupat" format
+    m_grile = re.match(
+        r"(?:grile\s+tip\s+)?complement\s+(simplu|grupat|multiplu|compus)",
+        stripped, re.IGNORECASE,
+    )
+    if m_grile:
+        return True, classify_complement(m_grile.group(1))
+
+    # "Întrebări tip complement simplu/grupat" with any prefix
+    m_intreb = re.match(
+        r".*[îiÎI]ntreb[ăa]ri\s+tip\s+complement\s+(simplu|simptu|grupat|multiplu)",
+        stripped, re.IGNORECASE,
+    )
+    if m_intreb:
+        return True, classify_complement(m_intreb.group(1))
+
+    # Descriptive sentences implying complement type (but not preface explanations)
+    low = stripped.lower()
+    if re.search(r"un\s+singur\s+r[ăa]spuns\s+corect", low):
+        # Reject preface lines like "Pentru complement simplu – un singur răspuns corect"
+        if not re.search(r"pentru\s+complement", low):
+            return True, "complement_simplu"
+    if re.search(r"ale[gț]e[tț]i\s+un\s+singur\s+r[ăa]spuns", low):
+        return True, "complement_simplu"
 
     return False, None
 
@@ -212,10 +282,21 @@ def fix_ocr_answer_line(line: str) -> str:
 
     Common OCR errors in 2012:
     - '8' used instead of 'B' in answer letter position
+    - '4' used instead of 'A' in answer letter position
     - 'l' or 't' used instead of '1' in answer numbers
     - 's' used instead of '5' in answer numbers
+    - 'I l' or 'll' used instead of '11'
     - 'ps.' or 'pe.' instead of 'pg.'
     """
+    # Pre-fix: "I l" at start of line → "11" (uppercase I + space + lowercase l)
+    line = re.sub(r"^(\s*)I\s+l(?=\s*[.\-,)\s])", r"\g<1>11", line)
+    # Pre-fix: "N l" at start → "N1" (digit + space + lowercase l → digit + 1)
+    # 2013 OCR: "1 l.D, p. 28" → "11.D, p. 28", "2 l.C" → "21.C"
+    line = re.sub(r"^(\s*\d)\s+l(?=\s*[.\-,)\s])", r"\g<1>1", line)
+    # Pre-fix: "t " at start of line → "1 " (lowercase t used instead of 1)
+    # 2013 OCR: "t C (pag. 44)" → "1 C (pag. 44)" (for Q1)
+    line = re.sub(r"^(\s*)t(?=\s+[A-Ea-e]\s*[(\s.,])", r"\g<1>1", line)
+
     # Fix answer number OCR: replace l/t/s in number positions
     # Pattern: line starts with digits possibly mixed with l/t/s
     m = re.match(r"^(\s*)([\dltsoOI]+)\s*([.\-,)\s])\s*(.*)$", line)
@@ -229,10 +310,16 @@ def fix_ocr_answer_line(line: str) -> str:
             pass
 
     # Fix '8' -> 'B' in answer letter position
-    # Pattern: after number+separator, '8' followed by space or paren or dot
+    # Pattern: after number+separator, '8' followed by space, paren, dot, or end of line
     line = re.sub(r"^(\s*\d{1,3}\s*[.\-,)\s]+\s*)8(\s*[(\s.])", r"\1B\2", line)
-    # Also handle "8 pg" or "8pg"
     line = re.sub(r"^(\s*\d{1,3}\s*[.\-,)\s]+\s*)8(p[gaes])", r"\1B \2", line)
+    line = re.sub(r"^(\s*\d{1,3}\s*[.\-,)\s]+\s*)8\s*$", r"\1B", line)
+
+    # Fix '4' -> 'A' in answer letter position (when no valid letter follows number)
+    # Only apply when '4' is alone (not part of a number like "14" or followed by digits)
+    line = re.sub(r"^(\s*\d{1,3}\s*[.\-,)\s]+\s*)4(\s*[(\s.])", r"\1A\2", line)
+    line = re.sub(r"^(\s*\d{1,3}\s*[.\-,)\s]+\s*)4(p[gaes])", r"\1A \2", line)
+    line = re.sub(r"^(\s*\d{1,3}\s*[.\-,)\s]+\s*)4\s*$", r"\1A", line)
 
     return line
 
@@ -240,10 +327,35 @@ def fix_ocr_answer_line(line: str) -> str:
 def parse_answer_lines(lines: list[str]) -> dict[int, tuple[str, str | None]]:
     """Parse answer key lines into {question_number: (letter, page_ref)}."""
     answers = {}
-    i = 0
 
-    while i < len(lines):
-        line = fix_ocr_answer_line(lines[i])
+    # Pre-process: expand table rows into individual answer entries
+    expanded_lines = []
+    for line in lines:
+        raw = line.strip()
+        if "|" in raw:
+            # Split table row into cells, each potentially an answer entry
+            cells = [c.strip() for c in raw.split("|") if c.strip()]
+            for cell in cells:
+                # Skip table headers / non-answer cells
+                if is_complement_header(cell)[0]:
+                    continue
+                if RE_RASPUNSURI.match(cell):
+                    # Extract inline answers from "RASPUNSURI: 1) B (pag 100)"
+                    remainder = RE_RASPUNSURI_PREFIX.sub("", cell).strip()
+                    if remainder and RE_ANSWER_INLINE.search(remainder):
+                        expanded_lines.append(remainder)
+                    continue
+                if is_topic_header_line(cell):
+                    continue
+                expanded_lines.append(cell)
+        else:
+            expanded_lines.append(raw)
+
+    i = 0
+    answer_offset = 0  # Offset for renumbered answer sub-sections
+
+    while i < len(expanded_lines):
+        line = fix_ocr_answer_line(expanded_lines[i])
         stripped = line.strip()
         i += 1
 
@@ -256,8 +368,34 @@ def parse_answer_lines(lines: list[str]) -> dict[int, tuple[str, str | None]]:
             continue
 
         # Skip complement section headers and topic headers within answers
+        # But extract inline answers after colon (e.g. "Complement simplu: 31. E/pag.84")
         is_ch, _ = is_complement_header(stripped)
         if is_ch:
+            # Detect renumbered sub-sections: if next answers restart at 1,
+            # offset by the max answer number seen so far (e.g. grupat answers
+            # numbered 1-30 should map to Q31-60 when simplu had 1-30)
+            # Guard: only apply offset if pre-restart answers are dense (>30%
+            # of range filled).  Sparse answers are likely false positives from
+            # question text being mis-parsed as answer lines.
+            if answers:
+                max_num = max(answers.keys())
+                for _peek in range(i, min(i + 5, len(expanded_lines))):
+                    _peek_s = expanded_lines[_peek].strip()
+                    if not _peek_s:
+                        continue
+                    _m_peek = RE_ANSWER_LINE.match(_peek_s) or RE_ANSWER_NOSEP.match(_peek_s)
+                    if _m_peek:
+                        _peek_num = int(_m_peek.group(1))
+                        if _peek_num == 1 and len(answers) >= max_num * 0.3:
+                            answer_offset = max_num
+                    break
+            colon_pos = stripped.find(":")
+            if colon_pos > 0:
+                after_colon = stripped[colon_pos + 1:].strip()
+                if after_colon and (RE_ANSWER_LINE.match(after_colon) or
+                                    RE_ANSWER_NOSEP.match(after_colon) or
+                                    RE_ANSWER_INLINE.search(after_colon)):
+                    expanded_lines.insert(i, after_colon)
             continue
         if RE_RASPUNSURI.match(stripped):
             continue
@@ -279,7 +417,7 @@ def parse_answer_lines(lines: list[str]) -> dict[int, tuple[str, str | None]]:
                     continue
                 m = RE_ANSWER_LINE.match(part) or RE_ANSWER_NOSEP.match(part)
                 if m:
-                    num = int(m.group(1))
+                    num = int(m.group(1)) + answer_offset
                     letter = m.group(2).upper()
                     pref = parse_page_ref(m.group(3)) if m.group(3) else None
                     temp_answers[num] = (letter, pref)
@@ -294,7 +432,7 @@ def parse_answer_lines(lines: list[str]) -> dict[int, tuple[str, str | None]]:
         inline_matches = RE_ANSWER_INLINE.findall(stripped)
         if len(inline_matches) >= 2:
             for num_str, letter in inline_matches:
-                answers[int(num_str)] = (letter.upper(), None)
+                answers[int(num_str) + answer_offset] = (letter.upper(), None)
             continue
 
         # Try standard answer line
@@ -302,13 +440,13 @@ def parse_answer_lines(lines: list[str]) -> dict[int, tuple[str, str | None]]:
         if not m:
             m = RE_ANSWER_NOSEP.match(stripped)
         if m:
-            num = int(m.group(1))
+            num = int(m.group(1)) + answer_offset
             letter = m.group(2).upper()
             page_text = m.group(3) if m.group(3) else ""
 
             # Collect continuation lines
-            while i < len(lines):
-                next_line = lines[i].strip()
+            while i < len(expanded_lines):
+                next_line = expanded_lines[i].strip()
                 if not next_line:
                     i += 1
                     continue
@@ -335,7 +473,7 @@ def parse_answer_lines(lines: list[str]) -> dict[int, tuple[str, str | None]]:
             raw_num = m_ocr.group(1)
             num_str = raw_num.replace("l", "1").replace("I", "1")
             try:
-                num = int(num_str)
+                num = int(num_str) + answer_offset
                 letter = m_ocr.group(2).upper()
                 rest = stripped[m_ocr.end():]
                 pref = parse_page_ref(rest)
@@ -346,12 +484,67 @@ def parse_answer_lines(lines: list[str]) -> dict[int, tuple[str, str | None]]:
 
         # Handle split answers: number on one line (e.g. "10." or "10"),
         # letter on the next line (e.g. "D (pag. 43)" or "B (pg 118)")
+        # Also handles BATCH fragmentation (2009): all numbers on consecutive
+        # lines, then all letters on consecutive lines.
         m_num_only = re.match(r"^\s*(\d{1,3})\s*[.\s)]*\s*$", stripped)
         if m_num_only:
-            num = int(m_num_only.group(1))
-            # Look ahead for the letter on the next non-empty line
-            while i < len(lines):
-                next_stripped = lines[i].strip()
+            first_num = int(m_num_only.group(1)) + answer_offset
+
+            # Peek ahead: is the next non-empty line also a bare number?
+            _peek_batch = False
+            for _pb in range(i, min(i + 3, len(expanded_lines))):
+                _pb_s = expanded_lines[_pb].strip()
+                if not _pb_s or RE_PAGE_MARKER.match(_pb_s):
+                    continue
+                if re.match(r"^\s*\d{1,3}\s*[.\s)]*\s*$", _pb_s):
+                    _peek_batch = True
+                break
+
+            if _peek_batch:
+                # Batch mode: collect all consecutive bare numbers, then
+                # matching bare letters. Handles 2009 fragmented OCR where
+                # numbers and letters are on separate consecutive lines.
+                bare_nums = [first_num]
+                while i < len(expanded_lines):
+                    ns = expanded_lines[i].strip()
+                    if not ns or RE_PAGE_MARKER.match(ns):
+                        i += 1
+                        continue
+                    nm = re.match(r"^\s*(\d{1,3})\s*[.\s)]*\s*$", ns)
+                    if nm:
+                        bare_nums.append(int(nm.group(1)) + answer_offset)
+                        i += 1
+                        continue
+                    break
+
+                # Collect bare letter lines (letter + paren/page ref)
+                bare_letters = []
+                while i < len(expanded_lines) and len(bare_letters) < len(bare_nums):
+                    ns = expanded_lines[i].strip()
+                    if not ns or RE_PAGE_MARKER.match(ns):
+                        i += 1
+                        continue
+                    # Match bare letter: optionally preceded by bullet/dot
+                    ml = re.match(r"^\s*[•.\s]*([A-Ea-e])\s*[(\s,.]", ns)
+                    if ml:
+                        bare_letters.append(ml.group(1).upper())
+                        i += 1
+                        continue
+                    # Skip page ref continuations: ".71)", "17)", ";-7i)"
+                    if re.match(r"^\s*[.;,]+\s*\d", ns) or re.match(r"^\s*\d+\s*[,)]\s*$", ns):
+                        i += 1
+                        continue
+                    break
+
+                # Pair numbers with letters
+                for j in range(min(len(bare_nums), len(bare_letters))):
+                    answers[bare_nums[j]] = (bare_letters[j], None)
+                continue
+
+            # Single bare number: look ahead for letter on next line
+            num = first_num
+            while i < len(expanded_lines):
+                next_stripped = expanded_lines[i].strip()
                 if not next_stripped:
                     i += 1
                     continue
@@ -366,8 +559,8 @@ def parse_answer_lines(lines: list[str]) -> dict[int, tuple[str, str | None]]:
                     i += 1
 
                     # Collect continuation lines
-                    while i < len(lines):
-                        cont = lines[i].strip()
+                    while i < len(expanded_lines):
+                        cont = expanded_lines[i].strip()
                         if not cont:
                             i += 1
                             continue
@@ -389,6 +582,19 @@ def parse_answer_lines(lines: list[str]) -> dict[int, tuple[str, str | None]]:
                 break
             continue
 
+        # Numberless answer line: bare letter followed by comma + page ref
+        # Used in OCR-corrupted sections (e.g. 2023) where question numbers
+        # are missing: "E, pg 108" meaning sequential answer
+        m_bare = re.match(
+            r"^\s*([A-Ea-e])\s*,\s*((?:pg|pag|p\.)\s*.*)$", stripped, re.IGNORECASE
+        )
+        if m_bare:
+            next_num = (max(answers.keys()) + 1) if answers else (1 + answer_offset)
+            letter = m_bare.group(1).upper()
+            pref = parse_page_ref(m_bare.group(2))
+            answers[next_num] = (letter, pref)
+            continue
+
     return answers
 
 
@@ -404,7 +610,7 @@ def is_skippable_line(stripped: str) -> bool:
                 r"Drd\. Dr|în conformitate|stabilirea|"
                 r"educafie|FURNIZOR|Colegiul|\*c|I,N INTN|"
                 r"A - dac|B - dac|C - dac|D - dac|E - dac|"
-                r"nAspuN|ALEGETI|SINGIIR)", stripped, re.IGNORECASE):
+                r"ALEGETI|SINGIIR)", stripped, re.IGNORECASE):
         return True
     return False
 
@@ -428,37 +634,213 @@ def parse_file(filepath: Path) -> dict:
     current_topic = None
     in_answers = False
     answer_lines_buffer = []
+    deferred_answers = {}  # Embedded answers to apply at test finalization
     in_general_tests = False
     test_counter = {}
     # Flag: we've seen a new topic/author and expect a new test at next complement header
     pending_new_section = False
+    # Flag: a topic header changed — used to split tests when questions restart
+    # at 1 without an explicit complement header (e.g. 2020 MIȘCAREA (2))
+    pending_topic_change = False
+    # Flag: complement_simplu section uses numbered choices (1-5) instead of A-E
+    numbered_simplu_choices = False
 
     def finalize_question():
         nonlocal current_question
         if current_question and current_test:
             current_question["text"] = current_question["text"].strip()
             # Discard zero-choice "questions" that are actually answer lines
-            # (e.g. "Apg.6", "Dpg.7" — a letter immediately followed by pg/pag)
-            if not current_question["choices"] and re.search(
-                r"[A-Ea-e]\s*p(?:a)?g", current_question["text"]
-            ):
-                current_question = None
-                return
+            # or OCR artifacts. Patterns:
+            #   "Apg.6", "Bp.80", "E (pag 21)", "A p. 103", "Cp. 80, 104"
+            if not current_question["choices"]:
+                txt = current_question["text"]
+                if re.search(r"^[A-Ea-e]\s*[(\s]*p(?:a)?(?:g|\.)", txt):
+                    current_question = None
+                    return
+                # Very short text starting with a letter — likely stray answer
+                if len(txt) < 15 and re.match(r"^[A-Ea-e]\b", txt):
+                    current_question = None
+                    return
+                # OCR-corrupted answer lines: text is only answer entry + page ref
+                # e.g. "C @ag92) 2t. C @a992)", "8 (pag 88)"
+                # Pattern: starts with single letter/digit, followed by page ref
+                if len(txt) < 60 and re.match(
+                    r"^[A-Ea-e0-9]\s*[\[({@]", txt
+                ):
+                    current_question = None
+                    return
             current_test["questions"].append(current_question)
         current_question = None
 
     def finalize_answers():
         nonlocal in_answers, answer_lines_buffer
         if in_answers and answer_lines_buffer and current_test:
-            match_answers_to_test(current_test, answer_lines_buffer)
+            answers = parse_answer_lines(answer_lines_buffer)
+            if answers:
+                # Count how many answers match the current test
+                matched = sum(
+                    1 for q in current_test["questions"]
+                    if q["number"] in answers
+                )
+                total_answers = len(answers)
+                total_questions = len(current_test["questions"])
+
+                # If fewer than 40% of answers match current test AND there are
+                # recent tests with more matching questions, try those instead.
+                if matched < total_answers * 0.4 and total_questions < total_answers * 0.5:
+                    best_test = current_test
+                    best_matched = matched
+                    for prev_test in reversed(tests[-5:]):
+                        prev_matched = sum(
+                            1 for q in prev_test["questions"]
+                            if q["number"] in answers and not q.get("correct_answer")
+                        )
+                        if prev_matched > best_matched:
+                            best_matched = prev_matched
+                            best_test = prev_test
+                    if best_test is not current_test:
+                        for q in best_test["questions"]:
+                            qnum = q["number"]
+                            if qnum in answers and not q.get("correct_answer"):
+                                letter, pref = answers[qnum]
+                                q["correct_answer"] = letter
+                                q["page_ref"] = pref
+                                if q["type"] == "complement_grupat":
+                                    q["correct_statements"] = GRUPAT_DECODE.get(letter)
+                    # Also assign to current test for any matches
+                    for q in current_test["questions"]:
+                        qnum = q["number"]
+                        if qnum in answers and not q.get("correct_answer"):
+                            letter, pref = answers[qnum]
+                            q["correct_answer"] = letter
+                            q["page_ref"] = pref
+                            if q["type"] == "complement_grupat":
+                                q["correct_statements"] = GRUPAT_DECODE.get(letter)
+                else:
+                    # Normal case: assign all answers to current test
+                    for q in current_test["questions"]:
+                        qnum = q["number"]
+                        if qnum in answers:
+                            letter, pref = answers[qnum]
+                            q["correct_answer"] = letter
+                            q["page_ref"] = pref
+                            if q["type"] == "complement_grupat":
+                                q["correct_statements"] = GRUPAT_DECODE.get(letter)
+                # Store answer dict for potential re-matching after Q0 renumbering
+                if not hasattr(current_test, "_answer_dicts"):
+                    current_test["_answer_dicts"] = []
+                current_test["_answer_dicts"].append(answers)
         answer_lines_buffer = []
         in_answers = False
 
+    def _fix_q0_renumbering():
+        """Fix Q0 and duplicate question numbers from page-break OCR artifacts.
+
+        Example: page break splits "30." into page-number + "0." on next page,
+        so Q30-Q37 appear as Q0-Q7, duplicating the real Q1-Q7.
+        Must run BEFORE answer matching so renumbered Qs get correct answers.
+        """
+        if not current_test or not current_test["questions"]:
+            return
+        nums = [q["number"] for q in current_test["questions"]]
+        if 0 not in nums:
+            return
+        idx_of_zero = nums.index(0)
+        # Count occurrences to identify duplicates
+        from collections import Counter
+        num_counts = Counter(nums)
+        # Find first missing number > 0
+        num_set = set(nums)
+        expected = 1
+        while expected in num_set:
+            expected += 1
+        # Renumber Q0 and subsequent duplicates only.
+        # Stop when we reach a question that's not a duplicate (unique original).
+        offset = expected  # Q0 → expected, Q1 → expected+1, etc.
+        for j in range(idx_of_zero, len(nums)):
+            old_num = current_test["questions"][j]["number"]
+            # Only renumber Q0 or numbers that appear more than once
+            if old_num != 0 and num_counts[old_num] <= 1:
+                break
+            new_num = old_num + offset
+            current_test["questions"][j]["number"] = new_num
+            current_test["questions"][j]["id"] = (
+                current_test["test_id"] + f"_q{new_num}"
+            )
+            # Clear any wrong answer that was matched with old number
+            current_test["questions"][j]["correct_answer"] = None
+            current_test["questions"][j]["page_ref"] = None
+            current_test["questions"][j]["correct_statements"] = None
+            num_counts[old_num] -= 1
+        # Re-apply stored answer dicts to match renumbered questions
+        for answers in current_test.get("_answer_dicts", []):
+            for q in current_test["questions"]:
+                if q["number"] in answers and not q.get("correct_answer"):
+                    letter, pref = answers[q["number"]]
+                    q["correct_answer"] = letter
+                    q["page_ref"] = pref
+                    if q["type"] == "complement_grupat":
+                        q["correct_statements"] = GRUPAT_DECODE.get(letter)
+
+    def _fix_page_concat_numbers():
+        """Fix question numbers corrupted by page number concatenation.
+
+        Example: page break makes "57" appear as "527" (page "52" + "7").
+        Detect: Q number > max_expected AND the gap from neighbors tells us
+        the correct number.
+        """
+        if not current_test or not current_test["questions"]:
+            return
+        qs = current_test["questions"]
+        num_set = set(q["number"] for q in qs)
+        max_normal = max((n for n in num_set if n <= 100), default=0)
+        for idx, q in enumerate(qs):
+            if q["number"] <= max_normal:
+                continue
+            # Use previous neighbor to guess correct number
+            prev_num = qs[idx - 1]["number"] if idx > 0 else 0
+            expected = prev_num + 1
+            if expected not in num_set and 0 < expected <= max_normal + 5:
+                old = q["number"]
+                q["number"] = expected
+                q["id"] = current_test["test_id"] + f"_q{expected}"
+                q["correct_answer"] = None  # clear possibly wrong answer
+                q["page_ref"] = None
+                q["correct_statements"] = None
+                num_set.discard(old)
+                num_set.add(expected)
+        # Re-apply stored answer dicts to match renumbered questions
+        if current_test:
+            for answers in current_test.get("_answer_dicts", []):
+                for q in qs:
+                    if q["number"] in answers and not q.get("correct_answer"):
+                        letter, pref = answers[q["number"]]
+                        q["correct_answer"] = letter
+                        q["page_ref"] = pref
+                        if q["type"] == "complement_grupat":
+                            q["correct_statements"] = GRUPAT_DECODE.get(letter)
+
     def finalize_test():
-        nonlocal current_test
+        nonlocal current_test, deferred_answers
         finalize_question()
+        # Fix Q0 renumbering BEFORE answer matching
+        _fix_q0_renumbering()
+        # Fix page-number concatenated question numbers
+        _fix_page_concat_numbers()
         finalize_answers()
+        # Apply deferred embedded answers (collected from inline answer sections)
+        if current_test and deferred_answers:
+            for q in current_test["questions"]:
+                qnum = q["number"]
+                if qnum in deferred_answers and not q.get("correct_answer"):
+                    letter, pref = deferred_answers[qnum]
+                    q["correct_answer"] = letter
+                    q["page_ref"] = pref
+                    if q["type"] == "complement_grupat":
+                        q["correct_statements"] = GRUPAT_DECODE.get(letter)
+            deferred_answers = {}
         if current_test and current_test["questions"]:
+            current_test.pop("_answer_dicts", None)  # clean up internal key
             tests.append(current_test)
         current_test = None
 
@@ -483,19 +865,6 @@ def parse_file(filepath: Path) -> dict:
         current_complement = None
         pending_new_section = False
 
-    def match_answers_to_test(test, ans_lines):
-        answers = parse_answer_lines(ans_lines)
-        if not answers:
-            return
-        for q in test["questions"]:
-            qnum = q["number"]
-            if qnum in answers:
-                letter, pref = answers[qnum]
-                q["correct_answer"] = letter
-                q["page_ref"] = pref
-                if q["type"] == "complement_grupat":
-                    q["correct_statements"] = GRUPAT_DECODE.get(letter)
-
     i = 0
     skip_cuprins = False
 
@@ -504,9 +873,23 @@ def parse_file(filepath: Path) -> dict:
         stripped = line.strip()
         i += 1
 
-        # Strip markdown headers (Mistral OCR output)
+        # Strip markdown formatting (Mistral OCR output)
         if stripped.startswith("#"):
             stripped = stripped.lstrip("#").strip()
+        # Strip bold markers (**text**)
+        if stripped.startswith("**") and stripped.endswith("**"):
+            stripped = stripped[2:-2].strip()
+        # Strip list markers (- A. choice text)
+        if stripped.startswith("- ") and len(stripped) > 2:
+            stripped = stripped[2:].strip()
+        # Strip "Capitolul N." prefix (2021/2023 book-style chapter headers)
+        _had_capitolul_prefix = False
+        _m_cap = re.match(r"^Capitolul\s+\d+\s*[.:]\s*", stripped, re.IGNORECASE)
+        if _m_cap:
+            _cap_rest = stripped[_m_cap.end():].strip()
+            if _cap_rest:
+                _had_capitolul_prefix = True
+                stripped = _cap_rest
 
         # Skip page markers
         if RE_PAGE_MARKER.match(stripped):
@@ -538,14 +921,33 @@ def parse_file(filepath: Path) -> dict:
                 skip_cuprins = False
                 i -= 1
                 continue
-            if RE_TESTE_GENERALE.match(stripped):
+            # CUPRINS entries like "11. TESTE GENERALE" start with a digit;
+            # real section headers don't.
+            if RE_TESTE_GENERALE.match(stripped) and not re.match(r"^\s*\d", stripped):
                 skip_cuprins = False
                 i -= 1
                 continue
-            if RE_TESTE_PE_CAPITOLE.match(stripped):
+            # CUPRINS entries like "1. TESTE RECAPITULATIVE" start with a digit;
+            # real headers use "L TESTE RECAPITULATIVE" or bare "TESTE RECAPITULATIV".
+            if RE_TESTE_PE_CAPITOLE.match(stripped) and not re.match(r"^\s*\d", stripped):
                 skip_cuprins = False
                 i -= 1
                 continue
+            # CUPRINS test names are followed by page numbers on the next line;
+            # real TEST headers are followed by complement headers or questions.
+            if RE_TEST_HEADER.match(stripped) and not re.search(r"\.\.\.", stripped):
+                _next_is_page = False
+                for _la in range(i, min(i + 3, len(lines))):
+                    _la_s = lines[_la].strip()
+                    if not _la_s or RE_PAGE_MARKER.match(_la_s):
+                        continue
+                    if RE_PAGE_NUMBER.match(_la_s):
+                        _next_is_page = True
+                    break
+                if not _next_is_page:
+                    skip_cuprins = False
+                    i -= 1
+                    continue
             continue
 
         # Skip non-content lines
@@ -562,8 +964,22 @@ def parse_file(filepath: Path) -> dict:
             continue
 
         # --- RĂSPUNSURI header ---
-        if RE_RASPUNSURI.match(stripped):
+        # Check both stripped line and individual table cells
+        _raspunsuri_match = (RE_RASPUNSURI.match(stripped) or RE_RASPUNSURI_OCR.match(stripped)
+                             or RE_RASPUNSURI_SPACED.match(stripped) or RE_RASPUNSURI_MISSPELL.match(stripped)
+                             or RE_RASPUNSURI_TRUNCATED.match(stripped))
+        if not _raspunsuri_match and "|" in stripped:
+            for _cell in stripped.split("|"):
+                _c = _cell.strip()
+                if RE_RASPUNSURI.match(_c) or RE_RASPUNSURI_OCR.match(_c):
+                    _raspunsuri_match = True
+                    break
+        if _raspunsuri_match:
             finalize_question()
+            # If already in answer mode, finalize current answers before starting
+            # new answer section (2009 has multiple RĂSPUNSURI headers in sequence)
+            if in_answers and answer_lines_buffer:
+                finalize_answers()
             in_answers = True
             answer_lines_buffer = []
             pending_new_section = True  # After answers, next topic/complement = new test
@@ -583,6 +999,24 @@ def parse_file(filepath: Path) -> dict:
                 continue
 
             if RE_TEST_HEADER.match(stripped) or RE_TEST_GENERAL_HEADER.match(stripped):
+                # 2023: "CAPITOLUL 14. TEST GENERAL" appears as a label between
+                # RĂSPUNSURI header and actual answer lines. If buffer is empty and
+                # line had a Capitolul prefix, skip this and any following metadata
+                # (author, complement headers) until answer lines start.
+                if _had_capitolul_prefix and not answer_lines_buffer:
+                    while i < len(lines):
+                        _sk = lines[i].strip()
+                        if _sk.startswith("#"):
+                            _sk = _sk.lstrip("#").strip()
+                        if not _sk or RE_PAGE_MARKER.match(_sk) or RE_PAGE_NUMBER.match(_sk):
+                            i += 1; continue
+                        if RE_AUTHOR.match(_sk):
+                            i += 1; continue
+                        _isch, _ = is_complement_header(_sk)
+                        if _isch:
+                            i += 1; continue
+                        break
+                    continue
                 finalize_answers()
                 i -= 1
                 continue
@@ -690,12 +1124,20 @@ def parse_file(filepath: Path) -> dict:
                 if not peek_line or RE_PAGE_MARKER.match(peek_line) or RE_PAGE_NUMBER.match(peek_line):
                     peek += 1
                     continue
-                is_ch, _ = is_complement_header(peek_line)
+                # Strip markdown from peek line for header detection
+                peek_clean = peek_line
+                if peek_clean.startswith("#"):
+                    peek_clean = peek_clean.lstrip("#").strip()
+                if peek_clean.startswith("**") and peek_clean.endswith("**"):
+                    peek_clean = peek_clean[2:-2].strip()
+                is_ch, _ = is_complement_header(peek_clean)
                 if is_ch:
                     break
-                if (peek_line.isupper() or peek_line.endswith(".")) and not RE_AUTHOR.match(peek_line) and not RE_RASPUNSURI.match(peek_line):
+                if RE_TEST_HEADER.match(peek_clean) or RE_AUTHOR.match(peek_clean):
+                    break
+                if (peek_line.isupper() or peek_line.endswith(".")) and not RE_RASPUNSURI.match(peek_clean):
                     if len(peek_line) > 3 and not RE_QUESTION_START.match(peek_line) and not peek_line[0].isdigit():
-                        full_title += " " + peek_line
+                        full_title += " " + peek_clean
                         i = peek + 1
                         peek += 1
                         continue
@@ -707,11 +1149,94 @@ def parse_file(filepath: Path) -> dict:
                 current_topic = topic_slug
                 in_general_tests = False  # chapter topic overrides general flag
                 pending_new_section = True
+                pending_topic_change = True
             continue
 
         # --- Complement header ---
         is_ch, complement_type = is_complement_header(stripped)
         if is_ch:
+            # Detect answer section without RĂSPUNSURI header (2009 TEST 3,
+            # 2016 EXCRETOR):  A complement header followed by answer-format
+            # lines with page references.  Requires 2+ consecutive answer-like
+            # lines.  Collects answers inline (NOT full answer mode) so
+            # subsequent questions in the same test are not absorbed.
+            if not in_answers and current_test and current_test["questions"]:
+                _ans_sect_count = 0
+                for _la in range(i, min(i + 10, len(lines))):
+                    _la_line = lines[_la].strip()
+                    if not _la_line or RE_PAGE_MARKER.match(_la_line) or RE_PAGE_NUMBER.match(_la_line):
+                        continue
+                    _la_fixed = fix_ocr_answer_line(_la_line)
+                    _m_la = RE_ANSWER_LINE.match(_la_fixed) or RE_ANSWER_NOSEP.match(_la_fixed)
+                    if _m_la:
+                        _la_text = (_m_la.group(3) if _m_la.group(3) else "").strip()
+                        if _la_text and re.match(r"(?:p[.\s]|pg|pag|[(])", _la_text, re.IGNORECASE):
+                            _ans_sect_count += 1
+                            if _ans_sect_count >= 2:
+                                break
+                            continue
+                    break
+                if _ans_sect_count >= 2:
+                    finalize_question()
+                    embedded_buf = [stripped]
+                    while i < len(lines):
+                        _el = lines[i].strip()
+                        if not _el or RE_PAGE_MARKER.match(_el) or RE_PAGE_NUMBER.match(_el):
+                            embedded_buf.append(lines[i])
+                            i += 1
+                            continue
+                        _el_fixed = fix_ocr_answer_line(_el)
+                        if (RE_ANSWER_LINE.match(_el_fixed)
+                                or RE_ANSWER_NOSEP.match(_el_fixed)
+                                or RE_ANSWER_CONTINUATION.match(_el)):
+                            embedded_buf.append(lines[i])
+                            i += 1
+                            continue
+                        break
+                    if embedded_buf:
+                        emb_answers = parse_answer_lines(embedded_buf)
+                        if emb_answers:
+                            deferred_answers.update(emb_answers)
+                    continue
+
+            # Lookahead: if this is a DUPLICATE complement header (same type already
+            # active) AND next lines are answer lines, it labels an embedded answer
+            # section, not new questions. (2016 EXCRETOR/METABOLISMUL have answers
+            # inline with duplicate complement headers mid-question-section.)
+            _ans_lookahead = False
+            if (current_complement == complement_type
+                    and current_test and current_test["questions"]
+                    and not pending_new_section):
+                for _la in range(i, min(i + 5, len(lines))):
+                    _la_line = lines[_la].strip()
+                    if not _la_line or RE_PAGE_MARKER.match(_la_line) or RE_PAGE_NUMBER.match(_la_line):
+                        continue
+                    _la_fixed = fix_ocr_answer_line(_la_line)
+                    if RE_ANSWER_LINE.match(_la_fixed) or RE_ANSWER_NOSEP.match(_la_fixed):
+                        _ans_lookahead = True
+                    break
+            if _ans_lookahead:
+                # Collect embedded answers inline without entering full answer mode.
+                finalize_question()
+                embedded_buf = []
+                while i < len(lines):
+                    _el = lines[i].strip()
+                    if not _el or RE_PAGE_MARKER.match(_el) or RE_PAGE_NUMBER.match(_el):
+                        embedded_buf.append(lines[i])
+                        i += 1
+                        continue
+                    if RE_ANSWER_LINE.match(_el) or RE_ANSWER_NOSEP.match(_el) or RE_ANSWER_CONTINUATION.match(_el):
+                        embedded_buf.append(lines[i])
+                        i += 1
+                        continue
+                    break  # Non-answer line — stop collecting
+                # Defer embedded answers for application at test finalization
+                if embedded_buf:
+                    emb_answers = parse_answer_lines(embedded_buf)
+                    if emb_answers:
+                        deferred_answers.update(emb_answers)
+                continue
+
             finalize_question()
 
             if current_test is None:
@@ -730,11 +1255,66 @@ def parse_file(filepath: Path) -> dict:
 
             current_complement = complement_type
             pending_new_section = False
+            pending_topic_change = False
+
+            # Detect numbered choices (1-5) for complement_simplu sections.
+            # Some files (e.g. 2009) use "1." through "5." instead of "A." through "E."
+            numbered_simplu_choices = False
+            if complement_type == "complement_simplu":
+                _la_idx = i
+                _found_q = False
+                while _la_idx < min(i + 30, len(lines)):
+                    _la_s = lines[_la_idx].strip()
+                    _la_idx += 1
+                    if not _la_s or RE_PAGE_MARKER.match(_la_s) or RE_PAGE_NUMBER.match(_la_s):
+                        continue
+                    if not _found_q:
+                        if RE_QUESTION_START.match(_la_s):
+                            _found_q = True
+                        continue
+                    # After the first question line, check what follows
+                    if RE_CHOICE_SIMPLU.match(_la_s):
+                        break  # Standard A-E letter choices
+                    if re.match(r"^\s*[1-5]\s*\.\s*", _la_s):
+                        numbered_simplu_choices = True
+                    break
             continue
 
         # --- Skip if no active test ---
         if not current_test:
             continue
+
+        # --- New test from topic header without complement header ---
+        # If a TOPIC HEADER (not just RĂSPUNSURI/author) signalled a new section
+        # and we see question 1 starting, begin a new test even without a complement
+        # header.  This handles files like 2020 where MIȘCAREA (2) jumps straight
+        # into questions without an explicit complement header.
+        if pending_topic_change and current_test["questions"]:
+            _m_q_check = RE_QUESTION_START.match(stripped)
+            if _m_q_check and int(_m_q_check.group(1)) == 1:
+                finalize_question()
+                _title = current_topic_title or "Unknown"
+                _topic_slug = current_topic or "unknown"
+                _test_type = "general_test" if in_general_tests else "chapter_test"
+                start_new_test(_title, _topic_slug, current_author, _test_type)
+                pending_new_section = False
+                pending_topic_change = False
+                current_complement = None  # Auto-detect from choices
+
+        # --- Auto-detect complement type if missing ---
+        if current_complement is None and RE_QUESTION_START.match(stripped):
+            # Look ahead for choice patterns to determine type
+            for la in range(i, min(i + 8, len(lines))):
+                la_stripped = lines[la].strip()
+                if not la_stripped:
+                    continue
+                if RE_CHOICE_SIMPLU.match(la_stripped):
+                    current_complement = "complement_simplu"
+                    break
+                if RE_CHOICE_GRUPAT.match(la_stripped):
+                    current_complement = "complement_grupat"
+                    break
+                break  # non-empty, non-choice line — stop looking
 
         # --- Question and choice parsing ---
         if current_complement == "complement_simplu":
@@ -768,6 +1348,39 @@ def parse_file(filepath: Path) -> dict:
                 current_question["choices"][choice_key] = choice_text
                 continue
 
+            # Numbered choices (1-5) used instead of A-E in some files (e.g. 2009)
+            if numbered_simplu_choices and current_question:
+                m_num = re.match(r"^\s*([1-5])\s*\.\s*(.*)$", stripped)
+                if m_num:
+                    num = int(m_num.group(1))
+                    choice_text = m_num.group(2).strip()
+
+                    while i < len(lines):
+                        next_stripped = lines[i].strip()
+                        if not next_stripped:
+                            break
+                        if RE_PAGE_MARKER.match(next_stripped):
+                            i += 1
+                            continue
+                        if RE_PAGE_NUMBER.match(next_stripped):
+                            i += 1
+                            continue
+                        if re.match(r"^\s*[1-5]\s*[.\)]", next_stripped):
+                            break
+                        if RE_QUESTION_START.match(next_stripped):
+                            break
+                        is_ch2, _ = is_complement_header(next_stripped)
+                        if is_ch2 or RE_RASPUNSURI.match(next_stripped) or RE_AUTHOR.match(next_stripped):
+                            break
+                        if is_topic_header_line(next_stripped) or RE_TEST_HEADER.match(next_stripped):
+                            break
+                        choice_text += " " + next_stripped
+                        i += 1
+
+                    letter_map = {1: "A", 2: "B", 3: "C", 4: "D", 5: "E"}
+                    current_question["choices"][letter_map[num]] = choice_text
+                    continue
+
             # Question start
             m_q = RE_QUESTION_START.match(stripped)
             if m_q:
@@ -786,6 +1399,9 @@ def parse_file(filepath: Path) -> dict:
                         i += 1
                         continue
                     if RE_CHOICE_SIMPLU.match(next_stripped):
+                        break
+                    # In numbered mode, also break on numbered choices
+                    if numbered_simplu_choices and re.match(r"^\s*[1-5]\s*[.\)]", next_stripped):
                         break
                     if RE_QUESTION_START.match(next_stripped):
                         break

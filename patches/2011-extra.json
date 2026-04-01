@@ -1,0 +1,9 @@
+{
+  "target": "Biologie 2011 UMFCD.json",
+  "patches": [
+    {"test_title": "TESTUL NR.4", "question_number": 19, "correct_answer": "C"},
+    {"test_title": "TESTUL NR. 7", "question_number": 33, "correct_answer": "C"},
+    {"test_title": "TESTUL NR.12", "question_number": 15, "correct_answer": "D"},
+    {"test_title": "TESTUL NR. 20", "question_number": 16, "correct_answer": "B"}
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "target": "Carte grile bio 2023 (1).json",
+  "patches": [
+    {
+      "test_title": "METABOLISME",
+      "question_number": 1,
+      "correct_answer": "E",
+      "force": true
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 2,
+      "correct_answer": "C",
+      "force": true
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 3,
+      "correct_answer": "D",
+      "force": true
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 4,
+      "correct_answer": "E",
+      "force": true
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 5,
+      "correct_answer": "D",
+      "force": true
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 6,
+      "correct_answer": "B",
+      "force": true
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 7,
+      "correct_answer": "E",
+      "force": true
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 8,
+      "correct_answer": "B",
+      "force": true
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 9,
+      "correct_answer": "D",
+      "force": true
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 10,
+      "correct_answer": "E",
+      "force": true
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 11,
+      "correct_answer": "D"
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 12,
+      "correct_answer": "E"
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 13,
+      "correct_answer": "D"
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 14,
+      "correct_answer": "B"
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 15,
+      "correct_answer": "E"
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 16,
+      "correct_answer": "A"
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 17,
+      "correct_answer": "C"
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 18,
+      "correct_answer": "E"
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 19,
+      "correct_answer": "A"
+    },
+    {
+      "test_title": "METABOLISME",
+      "question_number": 20,
+      "correct_answer": "D"
+    }
+  ]
+}

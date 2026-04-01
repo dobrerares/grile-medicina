@@ -1,0 +1,70 @@
+{
+  "target": "Biologie 2013 UMFCD.json",
+  "patches": [
+    {
+      "test_title": "ALCATUIREA CORPULUI UMAN",
+      "question_number": 37,
+      "correct_answer": "D"
+    },
+    {
+      "test_title": "ALCATUIREA CORPULUI UMAN",
+      "question_number": 55,
+      "correct_answer": "D"
+    },
+    {
+      "test_title": "ALCATUIREA CORPULUI UMAN",
+      "question_number": 58,
+      "correct_answer": "D"
+    },
+    {
+      "test_title": "ANALIZATORII",
+      "question_number": 11,
+      "correct_answer": "C"
+    },
+    {
+      "test_title": "ANALIZATORII",
+      "question_number": 21,
+      "correct_answer": "C"
+    },
+    {
+      "test_title": "ANALIZATORII",
+      "question_number": 22,
+      "correct_answer": "B"
+    },
+    {
+      "test_title": "ANALIZATORII",
+      "question_number": 31,
+      "correct_answer": "E"
+    },
+    {
+      "test_title": "ANALIZATORII",
+      "question_number": 51,
+      "correct_answer": "E"
+    },
+    {
+      "test_title": "CIRCULAȚIA",
+      "question_number": 28,
+      "correct_answer": "B"
+    },
+    {
+      "test_title": "CIRCULAȚIA",
+      "question_number": 38,
+      "correct_answer": "A"
+    },
+    {
+      "test_title": "EXCREȚIA",
+      "question_number": 21,
+      "correct_answer": "B"
+    },
+    {
+      "test_title": "TEST 9",
+      "question_number": 21,
+      "correct_answer": "C"
+    },
+    {
+      "test_title": "TEST 9",
+      "question_number": 31,
+      "correct_answer": "A"
+    }
+  ]
+}
