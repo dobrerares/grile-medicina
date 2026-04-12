@@ -4,6 +4,8 @@ import { getQuiz, submitAnswer, completeQuiz } from "../api";
 import type { QuizDetail, SessionQuestion, AnswerResult } from "../types";
 import QuestionCard from "../components/QuestionCard";
 import ComplementGrupatInfo from "../components/ComplementGrupatInfo";
+import Toast from "../components/Toast";
+import { getCorrectToast, getWrongToast } from "../messages";
 
 export default function Quiz() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -27,13 +29,18 @@ export default function Quiz() {
   const timerRef = useRef<number>(Date.now());
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Toast & streak state
+  const [toast, setToast] = useState<{ message: string; type: "correct" | "wrong" } | null>(null);
+  const [streak, setStreak] = useState(0);
+  const prevIndexRef = useRef(0);
+  const [slideDir, setSlideDir] = useState<"right" | "left">("right");
+
   useEffect(() => {
     if (!sessionId) return;
     setLoading(true);
     getQuiz(Number(sessionId))
       .then((data) => {
         setQuiz(data);
-        // Restore already-answered questions
         const restored: Record<
           number,
           { selected: string; result: AnswerResult }
@@ -43,14 +50,13 @@ export default function Quiz() {
             restored[q.session_question_id] = {
               selected: q.user_answer,
               result: {
-                is_correct: false, // unknown until re-fetched but marking as answered
+                is_correct: false,
                 correct_answer: "",
               },
             };
           }
         });
         setAnswers(restored);
-        // Jump to first unanswered question when resuming
         const firstUnanswered = data.questions.findIndex(
           (q) => !q.answered && !q.user_answer
         );
@@ -64,7 +70,6 @@ export default function Quiz() {
       .finally(() => setLoading(false));
   }, [sessionId]);
 
-  // Reset timer when navigating to a new question
   useEffect(() => {
     timerRef.current = Date.now();
   }, [currentIndex]);
@@ -93,7 +98,6 @@ export default function Quiz() {
           result,
         },
       }));
-      // Mark answered locally
       setQuiz((prev) => {
         if (!prev) return prev;
         return {
@@ -105,19 +109,30 @@ export default function Quiz() {
           ),
         };
       });
+
+      // Show toast (not in exam mode)
+      if (!examMode) {
+        if (result.is_correct) {
+          const newStreak = streak + 1;
+          setStreak(newStreak);
+          setToast({ message: getCorrectToast(newStreak), type: "correct" });
+        } else {
+          setStreak(0);
+          setToast({ message: getWrongToast(), type: "wrong" });
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Eroare la trimitere");
     } finally {
       setSubmitting(false);
     }
-  }, [currentQuestion, pendingAnswer, sessionId]);
+  }, [currentQuestion, pendingAnswer, sessionId, examMode, streak]);
 
   async function handleFinish() {
     if (!sessionId) return;
     setFinishing(true);
     try {
       if (examMode) {
-        // Submit all locally-stored answers at once
         await Promise.all(
           Object.entries(examSelections).map(([sqId, answer]) => {
             const q = questions.find(
@@ -136,12 +151,13 @@ export default function Quiz() {
       await completeQuiz(Number(sessionId));
       navigate(`/quiz/${sessionId}/results`);
     } catch {
-      // Already completed — go to results anyway
       navigate(`/quiz/${sessionId}/results`);
     }
   }
 
   function goTo(idx: number) {
+    setSlideDir(idx > currentIndex ? "right" : "left");
+    prevIndexRef.current = currentIndex;
     setPendingAnswer(null);
     setCurrentIndex(idx);
     setSidebarOpen(false);
@@ -159,10 +175,6 @@ export default function Quiz() {
         (q) => q.answered || answers[q.session_question_id]
       ).length;
   const progressPct = Math.round((answeredCount / questions.length) * 100);
-
-  // Extract source_file from question_id: e.g. "2025_celula_1_q1" → need from quiz data
-  // The question_id encodes info but source_file isn't directly available on SessionQuestion.
-  // We don't have source_file/page_ref on SessionQuestion — these buttons won't work without them.
 
   return (
     <div className="quiz-page">
@@ -249,34 +261,39 @@ export default function Quiz() {
         </div>
 
         {currentQuestion && (
-          <QuestionCard
-            question={currentQuestion}
-            selectedAnswer={
-              examMode
-                ? examSelections[currentQuestion.session_question_id] ?? null
-                : currentAnswer?.selected ?? pendingAnswer
-            }
-            onSelectAnswer={(a) => {
-              if (examMode) {
-                const isFirst =
-                  !examSelections[currentQuestion.session_question_id];
-                setExamSelections((prev) => ({
-                  ...prev,
-                  [currentQuestion.session_question_id]: a,
-                }));
-                if (isFirst && currentIndex < questions.length - 1) {
-                  goTo(currentIndex + 1);
-                }
-              } else {
-                if (!currentAnswer) setPendingAnswer(a);
+          <div
+            key={currentQuestion.session_question_id}
+            className={slideDir === "right" ? "anim-slide-right" : "anim-slide-left"}
+          >
+            <QuestionCard
+              question={currentQuestion}
+              selectedAnswer={
+                examMode
+                  ? examSelections[currentQuestion.session_question_id] ?? null
+                  : currentAnswer?.selected ?? pendingAnswer
               }
-            }}
-            onConfirm={handleConfirm}
-            result={examMode ? null : (currentAnswer?.result ?? null)}
-            sourceFile={currentQuestion.source_file}
-            pageRef={currentQuestion.page_ref}
-            examMode={examMode}
-          />
+              onSelectAnswer={(a) => {
+                if (examMode) {
+                  const isFirst =
+                    !examSelections[currentQuestion.session_question_id];
+                  setExamSelections((prev) => ({
+                    ...prev,
+                    [currentQuestion.session_question_id]: a,
+                  }));
+                  if (isFirst && currentIndex < questions.length - 1) {
+                    goTo(currentIndex + 1);
+                  }
+                } else {
+                  if (!currentAnswer) setPendingAnswer(a);
+                }
+              }}
+              onConfirm={handleConfirm}
+              result={examMode ? null : (currentAnswer?.result ?? null)}
+              sourceFile={currentQuestion.source_file}
+              pageRef={currentQuestion.page_ref}
+              examMode={examMode}
+            />
+          </div>
         )}
 
         {submitting && <div className="submitting-overlay">Se trimite...</div>}
@@ -300,6 +317,14 @@ export default function Quiz() {
           </button>
         </div>
       </div>
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onDone={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }
