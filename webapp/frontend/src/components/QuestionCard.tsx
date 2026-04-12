@@ -1,4 +1,6 @@
+import { useState } from "react";
 import type { SessionQuestion, AnswerResult } from "../types";
+import ReportModal from "./ReportModal";
 
 const CG_LEGEND: Record<string, string> = {
   A: "afirmatiile 1, 2, 3 sunt corecte",
@@ -27,6 +29,7 @@ export default function QuestionCard({
   sourceFile,
   pageRef,
 }: QuestionCardProps) {
+  const [showReport, setShowReport] = useState(false);
   const isCG = question.type === "complement_grupat";
   const showResult = result !== null;
   const confirmed = showResult || question.answered;
@@ -89,6 +92,14 @@ export default function QuestionCard({
         {question.year && (
           <span className="year-label">{question.year}</span>
         )}
+        <button
+          className="report-flag-btn"
+          onClick={() => setShowReport(true)}
+          title="Raporteaza o problema"
+          type="button"
+        >
+          &#9873;
+        </button>
       </div>
 
       <p className="question-text">{question.text}</p>
@@ -158,6 +169,14 @@ export default function QuestionCard({
           </button>
         )}
       </div>
+      {showReport && (
+        <ReportModal
+          onClose={() => setShowReport(false)}
+          questionId={question.question_id}
+          sourceFile={sourceFile}
+          pageRef={pageRef}
+        />
+      )}
     </div>
   );
 }
