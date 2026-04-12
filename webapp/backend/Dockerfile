@@ -9,7 +9,9 @@ COPY . .
 
 EXPOSE 8000
 
-RUN adduser --disabled-password --no-create-home appuser
+RUN adduser --disabled-password --no-create-home appuser \
+    && mkdir -p /app/data \
+    && chown appuser:appuser /app/data
 USER appuser
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
