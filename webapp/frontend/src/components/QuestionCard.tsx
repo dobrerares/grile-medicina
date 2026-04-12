@@ -46,17 +46,19 @@ export default function QuestionCard({
 
   function getChoiceClass(key: string): string {
     if (!showResult) {
-      return selectedAnswer === key ? "choice-selected" : "";
+      return selectedAnswer === key ? "choice-selected anim-pop" : "";
     }
     const classes: string[] = [];
     if (key === result.correct_answer) {
       classes.push("choice-correct");
+      classes.push("anim-correct-glow");
     }
     if (
       selectedAnswer === key &&
       key !== result.correct_answer
     ) {
       classes.push("choice-wrong");
+      classes.push("anim-shake");
     }
     if (selectedAnswer === key) {
       classes.push("choice-selected");
