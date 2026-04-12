@@ -1,0 +1,24 @@
+services:
+  backend:
+    build: webapp/backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./output/grile.json:/data/grile.json:ro
+      - ./pdfs:/data/pdfs:ro
+      - sqlite_data:/app/data
+    environment:
+      - JWT_SECRET=change-me-in-production
+      - DATA_PATH=/data/grile.json
+      - PDF_PATH=/data/pdfs
+      - DB_PATH=/app/data/quiz.db
+
+  frontend:
+    build: webapp/frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  sqlite_data:
