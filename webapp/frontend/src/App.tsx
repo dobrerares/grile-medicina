@@ -2,6 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import QuizSetup from "./pages/QuizSetup";
+import QuizConfig from "./pages/QuizConfig";
+import Quiz from "./pages/Quiz";
+import Results from "./pages/Results";
 import type { ReactNode } from "react";
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -44,7 +48,7 @@ function AppRoutes() {
         path="/quiz/setup"
         element={
           <ProtectedRoute>
-            <Placeholder title="Quiz Setup" />
+            <QuizSetup />
           </ProtectedRoute>
         }
       />
@@ -52,15 +56,7 @@ function AppRoutes() {
         path="/quiz/config"
         element={
           <ProtectedRoute>
-            <Placeholder title="Quiz Config" />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/quiz/:sessionId"
-        element={
-          <ProtectedRoute>
-            <Placeholder title="Quiz" />
+            <QuizConfig />
           </ProtectedRoute>
         }
       />
@@ -68,7 +64,15 @@ function AppRoutes() {
         path="/quiz/:sessionId/results"
         element={
           <ProtectedRoute>
-            <Placeholder title="Results" />
+            <Results />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/quiz/:sessionId"
+        element={
+          <ProtectedRoute>
+            <Quiz />
           </ProtectedRoute>
         }
       />
