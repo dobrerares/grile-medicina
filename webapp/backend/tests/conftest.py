@@ -17,6 +17,8 @@ os.environ["ADMIN_USERNAME"] = "admin"
 os.environ["JWT_SECRET"] = "test-secret"
 os.environ["DB_PATH"] = _test_db_path
 os.environ["DATA_PATH"] = _test_grile_path
+os.environ["PDF_PATH"] = os.path.join(_tmpdir, "pdfs")
+os.environ["SCREENSHOT_PATH"] = os.path.join(_tmpdir, "screenshots")
 
 # Write a minimal grile.json so quiz.py doesn't fail at import time
 _grile_data = {
@@ -64,6 +66,11 @@ def db_session():
         yield session
     finally:
         session.close()
+        # Clean all tables between tests to avoid UNIQUE constraint errors
+        with engine.connect() as conn:
+            for table in reversed(Base.metadata.sorted_tables):
+                conn.execute(table.delete())
+            conn.commit()
 
 
 @pytest.fixture()
@@ -75,11 +82,28 @@ def client(db_session, tmp_path):
     pdf_dir = tmp_path / "pdfs"
     pdf_dir.mkdir()
 
+    screenshots_dir = tmp_path / "screenshots"
+    screenshots_dir.mkdir()
+
     # Patch quiz module to use test data
     import quiz as quiz_service
     quiz_service.DATA_PATH = str(grile_path)
     quiz_service._file_mtime = 0.0
     quiz_service.load_data()
+
+    # Patch admin_routes module-level path variables
+    import admin_routes
+    admin_routes.DATA_PATH = str(grile_path)
+    admin_routes.PDF_PATH = str(pdf_dir)
+    admin_routes.SCREENSHOT_PATH = str(screenshots_dir)
+
+    # Patch report_routes module-level path variable
+    import report_routes
+    report_routes.SCREENSHOT_PATH = str(screenshots_dir)
+
+    # Also update env vars so test code using os.environ["PDF_PATH"] works
+    os.environ["PDF_PATH"] = str(pdf_dir)
+    os.environ["SCREENSHOT_PATH"] = str(screenshots_dir)
 
     def override_get_db():
         try:

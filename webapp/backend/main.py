@@ -1,3 +1,4 @@
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -5,6 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from database import Base, engine
 from routes import router
+from admin_routes import router as admin_router
+from report_routes import router as report_router
 import quiz as quiz_service
 
 
@@ -13,6 +16,8 @@ async def lifespan(app: FastAPI):
     # Startup: create tables and load data
     Base.metadata.create_all(bind=engine)
     quiz_service.load_data()
+    screenshots_dir = os.environ.get("SCREENSHOT_PATH", "/app/data/screenshots")
+    os.makedirs(screenshots_dir, exist_ok=True)
     yield
     # Shutdown: nothing to clean up
 
@@ -33,3 +38,5 @@ app.add_middleware(
 )
 
 app.include_router(router)
+app.include_router(admin_router)
+app.include_router(report_router)
