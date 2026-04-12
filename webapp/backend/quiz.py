@@ -169,26 +169,9 @@ def generate_review_quiz(
     """Pick questions the user got wrong most often."""
     load_data()
 
-    # Query all answers for this user, joined through session questions and sessions
+    # Fetch raw answer data and compute correctness in Python (since it depends on grile.json)
     from models import QuizSession
 
-    subq = (
-        db.query(
-            QuizSessionQuestion.question_id,
-            func.count(QuizAnswer.id).label("total_attempts"),
-            func.sum(
-                # We need to check correctness against grile.json at query time,
-                # but SQL can't do that. So we fetch all and compute in Python.
-            ).label("_unused"),
-        )
-        .join(QuizAnswer, QuizAnswer.session_question_id == QuizSessionQuestion.id)
-        .join(QuizSession, QuizSession.id == QuizSessionQuestion.session_id)
-        .filter(QuizSession.user_id == user_id)
-        .group_by(QuizSessionQuestion.question_id)
-        .all()
-    )
-
-    # Actually, let's fetch raw data and compute in Python for correctness
     rows = (
         db.query(QuizSessionQuestion.question_id, QuizAnswer.user_answer)
         .join(QuizAnswer, QuizAnswer.session_question_id == QuizSessionQuestion.id)
