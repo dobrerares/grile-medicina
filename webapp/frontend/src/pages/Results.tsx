@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { completeQuiz, generateReviewQuiz } from "../api";
+import { getResultBanner } from "../messages";
+import Confetti from "../components/Confetti";
 
 interface QuestionResult {
   question_id: string;
@@ -25,6 +27,35 @@ interface CompletionResult {
   results: QuestionResult[];
 }
 
+function useCountUp(target: number, duration = 1000): number {
+  const [value, setValue] = useState(0);
+  const startRef = useRef<number | null>(null);
+  const rafRef = useRef<number>(0);
+
+  const animate = useCallback(
+    (timestamp: number) => {
+      if (startRef.current === null) startRef.current = timestamp;
+      const elapsed = timestamp - startRef.current;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(Math.round(eased * target));
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(animate);
+      }
+    },
+    [target, duration]
+  );
+
+  useEffect(() => {
+    if (target === 0) return;
+    startRef.current = null;
+    rafRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [target, animate]);
+
+  return value;
+}
+
 export default function Results() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
@@ -33,13 +64,13 @@ export default function Results() {
   const [error, setError] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [reviewLoading, setReviewLoading] = useState(false);
+  const [barAnimated, setBarAnimated] = useState(false);
 
   useEffect(() => {
     if (!sessionId) return;
     completeQuiz(Number(sessionId))
       .then((res) => setData(res as CompletionResult))
       .catch(async (err) => {
-        // If already completed (400), try fetching via complete again or show error
         if (err instanceof Error && err.message.includes("400")) {
           try {
             const res = await completeQuiz(Number(sessionId));
@@ -55,6 +86,15 @@ export default function Results() {
       })
       .finally(() => setLoading(false));
   }, [sessionId]);
+
+  useEffect(() => {
+    if (data) {
+      const timer = setTimeout(() => setBarAnimated(true), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [data]);
+
+  const displayCount = useCountUp(data?.correct_count ?? 0);
 
   async function handleReviewMistakes() {
     if (!data) return;
@@ -82,15 +122,22 @@ export default function Results() {
   const unansweredCount = data.results.filter(
     (r) => r.user_answer === null
   ).length;
+  const banner = getResultBanner(data.accuracy);
+  const showConfetti = data.accuracy >= 0.9;
 
   return (
     <div className="results-page">
+      {showConfetti && <Confetti />}
       <div className="results-card">
-        <h1>Rezultate</h1>
+        <h1 className="anim-fade-slide-up">Rezultate</h1>
 
-        <div className="results-summary">
-          <div className="score-display">
-            <span className="score-number">{data.correct_count}</span>
+        <div className={`results-banner results-banner-${banner.tone} anim-fade-slide-up`} style={{ animationDelay: "0.1s" }}>
+          {banner.text}
+        </div>
+
+        <div className="results-summary anim-fade-slide-up" style={{ animationDelay: "0.2s" }}>
+          <div className="score-display anim-count-up">
+            <span className="score-number">{displayCount}</span>
             <span className="score-divider">/</span>
             <span className="score-total">{data.total_questions}</span>
           </div>
@@ -98,13 +145,14 @@ export default function Results() {
             <div
               className="accuracy-fill"
               style={{
-                width: `${pct}%`,
+                width: barAnimated ? `${pct}%` : "0%",
                 background:
                   pct >= 70
                     ? "var(--color-success)"
                     : pct >= 50
                       ? "var(--color-warning)"
                       : "var(--color-error)",
+                transition: "width 1s cubic-bezier(0.34, 1.56, 0.64, 1)",
               }}
             />
           </div>
@@ -118,7 +166,7 @@ export default function Results() {
           </div>
         </div>
 
-        <div className="results-actions">
+        <div className="results-actions anim-fade-slide-up" style={{ animationDelay: "0.3s" }}>
           {wrongCount > 0 && (
             <button
               className="btn btn-primary"
@@ -138,9 +186,9 @@ export default function Results() {
           </button>
         </div>
 
-        <h2 className="results-list-title">Detalii intrebari</h2>
+        <h2 className="results-list-title anim-fade-slide-up" style={{ animationDelay: "0.4s" }}>Detalii intrebari</h2>
         <div className="results-list">
-          {data.results.map((r) => {
+          {data.results.map((r, i) => {
             const isCG = r.type === "complement_grupat";
             const rowClass = r.user_answer === null
               ? "result-row result-unanswered"
@@ -150,7 +198,11 @@ export default function Results() {
             const expanded = expandedId === r.question_id;
 
             return (
-              <div key={r.question_id} className={rowClass}>
+              <div
+                key={r.question_id}
+                className={`${rowClass} anim-fade-slide-up`}
+                style={{ animationDelay: `${0.4 + Math.min(i, 10) * 0.03}s` }}
+              >
                 <div
                   className="result-row-header"
                   onClick={() =>

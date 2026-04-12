@@ -2551,3 +2551,38 @@ body {
   color: var(--color-cs);
   border: 1px solid var(--color-cs);
 }
+
+/* ------ Results Banner ------ */
+
+.results-banner {
+  text-align: center;
+  padding: 0.875rem 1.25rem;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.results-banner-excellent {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
+}
+
+.results-banner-good {
+  background: var(--color-badge-cs-bg);
+  color: var(--color-cs);
+  border: 1px solid var(--color-cs);
+}
+
+.results-banner-decent {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  border: 1px solid var(--color-warning);
+}
+
+.results-banner-encourage {
+  background: var(--color-bg-muted);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
