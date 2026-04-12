@@ -196,6 +196,8 @@ export default function Quiz() {
             }}
             onConfirm={handleConfirm}
             result={currentAnswer?.result ?? null}
+            sourceFile={currentQuestion.source_file}
+            pageRef={currentQuestion.page_ref}
           />
         )}
 

@@ -27,6 +27,8 @@ export interface SessionQuestion {
   choices: Record<string, string>;
   topic?: string;
   year?: number;
+  source_file?: string;
+  page_ref?: string;
   answered: boolean;
   user_answer?: string;
 }

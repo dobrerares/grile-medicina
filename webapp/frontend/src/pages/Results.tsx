@@ -126,7 +126,7 @@ export default function Results() {
               disabled={reviewLoading}
               type="button"
             >
-              {reviewLoading ? "Se genereaza..." : `Revizuieste greseli (${wrongCount})`}
+              {reviewLoading ? "Se genereaza..." : `Exerseaza punctele slabe (${wrongCount})`}
             </button>
           )}
           <button

@@ -205,6 +205,8 @@ def get_quiz(session_id: int, current_user: User = Depends(get_current_user), db
             "choices": q.get("choices"),
             "topic": q.get("topic"),
             "year": q.get("year"),
+            "source_file": q.get("source_file"),
+            "page_ref": q.get("page_ref"),
             "answered": existing_answer is not None,
             # Do NOT include correct_answer
         })
@@ -287,11 +289,10 @@ def complete_quiz(session_id: int, current_user: User = Depends(get_current_user
     if session.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not your session")
 
-    if session.completed_at is not None:
-        raise HTTPException(status_code=400, detail="Session already completed")
-
-    session.completed_at = datetime.datetime.utcnow()
-    db.commit()
+    already_completed = session.completed_at is not None
+    if not already_completed:
+        session.completed_at = datetime.datetime.utcnow()
+        db.commit()
 
     # Build full results
     session_questions = (
