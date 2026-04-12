@@ -251,7 +251,12 @@ def submit_answer(
     if q is None:
         raise HTTPException(status_code=404, detail="Question not found in data")
 
-    # Create answer (always append, never upsert)
+    # Prevent duplicate answers
+    existing_answer = db.query(QuizAnswer).filter(QuizAnswer.session_question_id == sq.id).first()
+    if existing_answer:
+        raise HTTPException(status_code=400, detail="Already answered")
+
+    # Create answer
     answer = QuizAnswer(
         session_question_id=sq.id,
         user_answer=body.answer,
@@ -281,6 +286,9 @@ def complete_quiz(session_id: int, current_user: User = Depends(get_current_user
         raise HTTPException(status_code=404, detail="Session not found")
     if session.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not your session")
+
+    if session.completed_at is not None:
+        raise HTTPException(status_code=400, detail="Session already completed")
 
     session.completed_at = datetime.datetime.utcnow()
     db.commit()

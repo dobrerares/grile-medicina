@@ -21,7 +21,7 @@ class QuizSession(Base):
     __tablename__ = "quiz_sessions"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     started_at = Column(DateTime, default=datetime.datetime.utcnow)
     completed_at = Column(DateTime, nullable=True)
     filters = Column(Text, nullable=True)  # JSON string of filters used
@@ -35,7 +35,7 @@ class QuizSessionQuestion(Base):
     __tablename__ = "quiz_session_questions"
 
     id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(Integer, ForeignKey("quiz_sessions.id"), nullable=False)
+    session_id = Column(Integer, ForeignKey("quiz_sessions.id"), nullable=False, index=True)
     question_id = Column(String, nullable=False)  # references grile.json question id
     position = Column(Integer, nullable=False)
 
@@ -47,7 +47,7 @@ class QuizAnswer(Base):
     __tablename__ = "quiz_answers"
 
     id = Column(Integer, primary_key=True, index=True)
-    session_question_id = Column(Integer, ForeignKey("quiz_session_questions.id"), nullable=False)
+    session_question_id = Column(Integer, ForeignKey("quiz_session_questions.id"), nullable=False, index=True)
     user_answer = Column(String, nullable=False)
     time_spent_ms = Column(Integer, nullable=True)
     answered_at = Column(DateTime, default=datetime.datetime.utcnow)

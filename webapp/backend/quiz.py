@@ -4,10 +4,9 @@ import random
 from pathlib import Path
 from typing import Optional
 
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from models import QuizAnswer, QuizSessionQuestion
+from models import QuizAnswer, QuizSession, QuizSessionQuestion
 
 DATA_PATH = os.environ.get("DATA_PATH", "/data/grile.json")
 
@@ -170,8 +169,6 @@ def generate_review_quiz(
     load_data()
 
     # Fetch raw answer data and compute correctness in Python (since it depends on grile.json)
-    from models import QuizSession
-
     rows = (
         db.query(QuizSessionQuestion.question_id, QuizAnswer.user_answer)
         .join(QuizAnswer, QuizAnswer.session_question_id == QuizSessionQuestion.id)
