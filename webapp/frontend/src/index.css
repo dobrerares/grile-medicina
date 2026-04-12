@@ -2514,3 +2514,40 @@ body {
   }
 
 }
+
+/* ------ Dashboard Messages ------ */
+
+.dash-messages {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.dash-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.dash-message-streak {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  border: 1px solid var(--color-warning);
+}
+
+.dash-message-improvement {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
+}
+
+.dash-message-milestone {
+  background: var(--color-badge-cs-bg);
+  color: var(--color-cs);
+  border: 1px solid var(--color-cs);
+}

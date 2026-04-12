@@ -67,6 +67,8 @@ export interface Stats {
   total_answered: number;
   total_correct: number;
   accuracy: number;
+  study_streak: number;
+  accuracy_trend: number;
   by_topic: Record<
     string,
     { total: number; correct: number; accuracy: number }

@@ -5,6 +5,8 @@ import { getStats, getHistory, getWeakest, generateQuiz, generateReviewQuiz } fr
 import type { Stats, HistorySession, WeakQuestion } from "../types";
 import StatsCharts from "../components/StatsCharts";
 import ReportModal from "../components/ReportModal";
+import ThemeToggle from "../components/ThemeToggle";
+import { getDashboardMessages } from "../messages";
 
 function formatTopic(raw: string): string {
   return raw.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
@@ -83,8 +85,16 @@ export default function Dashboard() {
 
   const hasData = stats && stats.total_answered > 0;
 
-  // In-progress sessions (not completed)
   const inProgress = history.filter((s) => !s.completed_at);
+
+  const dashMessages = hasData
+    ? getDashboardMessages(
+        user?.username ?? "",
+        stats!.total_answered,
+        stats!.study_streak ?? 0,
+        stats!.accuracy_trend ?? 0,
+      )
+    : [];
 
   const topicData = stats?.by_topic
     ? Object.entries(stats.by_topic)
@@ -117,7 +127,8 @@ export default function Dashboard() {
           <h1>Bine ai venit, {user?.username}!</h1>
           <p className="dash-subtitle">Panou de control</p>
         </div>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          <ThemeToggle />
           {isAdmin && (
             <button className="btn btn-secondary" onClick={() => navigate("/admin")}>
               Admin
@@ -131,7 +142,23 @@ export default function Dashboard() {
 
       {error && <div className="auth-error">{error}</div>}
 
-      {/* Resume in-progress quizzes — always visible */}
+      {dashMessages.length > 0 && (
+        <div className="dash-messages">
+          {dashMessages.map((msg, i) => (
+            <div
+              key={msg.type}
+              className={`dash-message dash-message-${msg.type} anim-fade-slide-up`}
+              style={{ animationDelay: `${i * 0.1}s` }}
+            >
+              {msg.type === "streak" && "\uD83D\uDD25 "}
+              {msg.type === "improvement" && "\uD83D\uDCC8 "}
+              {msg.type === "milestone" && "\uD83C\uDFC6 "}
+              {msg.text}
+            </div>
+          ))}
+        </div>
+      )}
+
       {inProgress.length > 0 && (
         <div className="dash-section">
           <h2 className="dash-section-title">Continua testul</h2>
@@ -179,7 +206,7 @@ export default function Dashboard() {
       )}
 
       {!hasData ? (
-        <div className="dash-empty">
+        <div className="dash-empty anim-fade-slide-up">
           <h2>Nicio activitate inca</h2>
           <p>Incepe primul tau test pentru a vedea statisticile aici.</p>
           <button
@@ -191,30 +218,25 @@ export default function Dashboard() {
         </div>
       ) : (
         <>
-          {/* Stats cards */}
           <div className="stats-grid">
-            <div className="stat-card">
-              <span className="stat-value">{stats!.total_answered}</span>
-              <span className="stat-label">Intrebari raspunse</span>
-            </div>
-            <div className="stat-card stat-card-accent">
-              <span className="stat-value">
-                {Math.round(stats!.accuracy * 100)}%
-              </span>
-              <span className="stat-label">Acuratete generala</span>
-            </div>
-            <div className="stat-card">
-              <span className="stat-value">{stats!.total_correct}</span>
-              <span className="stat-label">Raspunsuri corecte</span>
-            </div>
-            <div className="stat-card">
-              <span className="stat-value">{history.length}</span>
-              <span className="stat-label">Sesiuni completate</span>
-            </div>
+            {[
+              { value: stats!.total_answered, label: "Intrebari raspunse", accent: false },
+              { value: `${Math.round(stats!.accuracy * 100)}%`, label: "Acuratete generala", accent: true },
+              { value: stats!.total_correct, label: "Raspunsuri corecte", accent: false },
+              { value: history.length, label: "Sesiuni completate", accent: false },
+            ].map((card, i) => (
+              <div
+                key={card.label}
+                className={`stat-card${card.accent ? " stat-card-accent" : ""} anim-bounce-in`}
+                style={{ animationDelay: `${i * 0.08}s` }}
+              >
+                <span className="stat-value">{card.value}</span>
+                <span className="stat-label">{card.label}</span>
+              </div>
+            ))}
           </div>
 
-          {/* Quick actions */}
-          <div className="dash-section">
+          <div className="dash-section anim-fade-slide-up" style={{ animationDelay: "0.3s" }}>
             <h2 className="dash-section-title">Actiuni rapide</h2>
             <div className="quick-actions">
               <button
@@ -243,22 +265,20 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Charts */}
           {topicData.length > 0 && (
-            <div className="dash-section">
+            <div className="dash-section anim-fade-slide-up" style={{ animationDelay: "0.4s" }}>
               <StatsCharts data={topicData} title="Acuratete pe tema" />
             </div>
           )}
 
           {yearData.length > 0 && (
-            <div className="dash-section">
+            <div className="dash-section anim-fade-slide-up" style={{ animationDelay: "0.5s" }}>
               <StatsCharts data={yearData} title="Acuratete pe an" />
             </div>
           )}
 
-          {/* Recent sessions */}
           {history.length > 0 && (
-            <div className="dash-section">
+            <div className="dash-section anim-fade-slide-up" style={{ animationDelay: "0.6s" }}>
               <h2 className="dash-section-title">Sesiuni recente</h2>
               <div className="history-table-wrap">
                 <table className="history-table">
@@ -299,9 +319,8 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Weakest questions */}
           {weakest.length > 0 && (
-            <div className="dash-section">
+            <div className="dash-section anim-fade-slide-up" style={{ animationDelay: "0.7s" }}>
               <h2 className="dash-section-title">Intrebari problematice</h2>
               <div className="weak-list">
                 {weakest.slice(0, 20).map((q) => (
