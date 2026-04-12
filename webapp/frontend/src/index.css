@@ -12,8 +12,50 @@
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
+/* Forced light */
+[data-theme="light"] {
+  --color-bg: #f8f9fa;
+  --color-surface: #ffffff;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-text: #1a1a2e;
+  --color-text-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-error: #dc2626;
+  --color-error-bg: #fef2f2;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  color-scheme: light;
+}
+
+/* Forced dark */
+[data-theme="dark"] {
+  --color-bg: #0f1117;
+  --color-surface: #1a1b26;
+  --color-primary: #3b82f6;
+  --color-primary-hover: #60a5fa;
+  --color-text: #e2e8f0;
+  --color-text-muted: #94a3b8;
+  --color-border: #2d3148;
+  --color-error: #f87171;
+  --color-error-bg: #2d1b1b;
+  --color-success: #4ade80;
+  --color-success-bg: #052e16;
+  --color-warning: #fbbf24;
+  --color-warning-bg: #2e2510;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  color-scheme: dark;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* System fallback (no data-theme attribute set) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --color-bg: #0f1117;
     --color-surface: #1a1b26;
     --color-primary: #3b82f6;
@@ -31,7 +73,9 @@
     color-scheme: dark;
   }
 
-  input, select, textarea {
+  :root:not([data-theme]) input,
+  :root:not([data-theme]) select,
+  :root:not([data-theme]) textarea {
     background: var(--color-surface);
     color: var(--color-text);
   }
@@ -184,8 +228,21 @@ body {
   --color-unanswered: #9ca3af;
 }
 
+[data-theme="dark"] {
+  --color-cs: #60a5fa;
+  --color-cg: #fb923c;
+  --color-bg-muted: #1e2030;
+  --color-bg-hover: #1e2030;
+  --color-bg-detail: #1e2030;
+  --color-selected-bg: #1e3a5f;
+  --color-badge-cs-bg: #1e3a5f;
+  --color-badge-cg-bg: #3b2810;
+  --color-btn-secondary-hover: #3d4050;
+  --color-unanswered: #6b7280;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --color-cs: #60a5fa;
     --color-cg: #fb923c;
     --color-bg-muted: #1e2030;
