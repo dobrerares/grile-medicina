@@ -8,8 +8,8 @@
   --color-border: #e5e7eb;
   --color-error: #dc2626;
   --color-error-bg: #fef2f2;
-  --radius: 8px;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --radius: 12px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 /* Forced light */
@@ -42,7 +42,7 @@
   --color-success-bg: #052e16;
   --color-warning: #fbbf24;
   --color-warning-bg: #2e2510;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
   color-scheme: dark;
 }
 
@@ -69,7 +69,7 @@
     --color-success-bg: #052e16;
     --color-warning: #fbbf24;
     --color-warning-bg: #2e2510;
-    --shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
     color-scheme: dark;
   }
 
@@ -90,11 +90,11 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
   background: var(--color-bg);
   color: var(--color-text);
-  line-height: 1.6;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0.05);
   -webkit-text-size-adjust: 100%;
@@ -388,6 +388,7 @@ body {
   font-size: 1.375rem;
   font-weight: 600;
   margin-bottom: 0.25rem;
+  letter-spacing: -0.02em;
 }
 
 .setup-subtitle {
@@ -560,7 +561,8 @@ body {
   background: var(--color-surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 1.5rem;
+  padding: 1.75rem;
+  border: 1px solid var(--color-border);
 }
 
 .question-header {
@@ -870,6 +872,7 @@ body {
   font-size: 1.375rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
 }
 
 .results-summary {
@@ -1064,6 +1067,7 @@ body {
 .dash-header h1 {
   font-size: 1.5rem;
   font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .dash-subtitle {
@@ -1092,7 +1096,7 @@ body {
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  gap: 1.25rem;
   margin-bottom: 2rem;
 }
 
@@ -1100,7 +1104,9 @@ body {
   background: var(--color-surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 1.25rem;
+  padding: 1.5rem;
+  border: 1px solid var(--color-border);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1136,6 +1142,7 @@ body {
   font-size: 1.125rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
 }
 
 .quick-actions {
@@ -1946,6 +1953,7 @@ body {
 .admin-header h1 {
   font-size: 1.5rem;
   font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .admin-tabs {
@@ -2384,4 +2392,125 @@ body {
     transform: translateY(100vh) translateX(var(--drift, 0px)) rotate(calc(var(--rotation, 0deg) + 720deg));
     opacity: 0;
   }
+}
+
+/* ------ Hover Lift ------ */
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.weak-item,
+.resume-card,
+.stats-chart,
+.admin-report-row {
+  border: 1px solid var(--color-border);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.weak-item:hover,
+.stats-chart:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* ------ Animation Keyframes ------ */
+
+@media (prefers-reduced-motion: no-preference) {
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bounceIn {
+    0% { opacity: 0; transform: scale(0.8); }
+    60% { opacity: 1; transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes correctGlow {
+    0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(22, 163, 74, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-4px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes countUp {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  /* Entrance animations */
+  .anim-fade-slide-up {
+    opacity: 0;
+    animation: fadeSlideUp 0.4s ease-out forwards;
+  }
+
+  .anim-bounce-in {
+    opacity: 0;
+    animation: bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .anim-slide-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  .anim-slide-left {
+    animation: slideInLeft 0.3s ease-out;
+  }
+
+  /* Quiz answer feedback */
+  .anim-pop { animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .anim-correct-glow { animation: correctGlow 0.6s ease-out; }
+  .anim-shake { animation: shake 0.4s ease-in-out; }
+
+  /* Results */
+  .anim-count-up { animation: countUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+  /* Micro-interactions */
+  .btn:active:not(:disabled) {
+    transform: scale(0.95);
+    transition: transform 0.1s;
+  }
+
+  /* Chart bar grow animation */
+  .bar-fill {
+    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Progress bar improvement indicator pulse */
+  .anim-pulse {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
 }
