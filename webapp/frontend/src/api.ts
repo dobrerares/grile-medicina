@@ -78,9 +78,10 @@ export async function login(
 
 export async function register(
   username: string,
-  password: string
+  password: string,
+  inviteCode: string
 ): Promise<{ token: string; user: User }> {
-  return api.post("/auth/register", { username, password });
+  return api.post("/auth/register", { username, password, invite_code: inviteCode });
 }
 
 export async function getMe(): Promise<User> {

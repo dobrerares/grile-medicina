@@ -7,6 +7,7 @@ export default function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -21,7 +22,7 @@ export default function Register() {
 
     setSubmitting(true);
     try {
-      await register(username, password);
+      await register(username, password, inviteCode);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
@@ -63,6 +64,16 @@ export default function Register() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
+          />
+        </label>
+        <label>
+          Cod de invitație
+          <input
+            type="text"
+            value={inviteCode}
+            onChange={(e) => setInviteCode(e.target.value)}
+            required
+            placeholder="Introdu codul primit"
           />
         </label>
         <button type="submit" disabled={submitting}>

@@ -12,6 +12,7 @@ services:
       - DATA_PATH=/data/grile.json
       - PDF_PATH=/data/pdfs
       - DB_PATH=/app/data/quiz.db
+      - INVITE_CODE=grile2025
 
   frontend:
     build: webapp/frontend

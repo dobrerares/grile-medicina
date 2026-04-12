@@ -17,6 +17,7 @@ import quiz as quiz_service
 router = APIRouter()
 
 PDF_PATH = os.environ.get("PDF_PATH", "/data/pdfs")
+INVITE_CODE = os.environ.get("INVITE_CODE", "grile2025")
 
 
 # ---------- Pydantic schemas ----------
@@ -24,6 +25,7 @@ PDF_PATH = os.environ.get("PDF_PATH", "/data/pdfs")
 class RegisterRequest(BaseModel):
     username: str = Field(min_length=3, max_length=50)
     password: str = Field(min_length=6)
+    invite_code: str
 
 
 class LoginRequest(BaseModel):
@@ -60,6 +62,9 @@ class AvailableCountsRequest(BaseModel):
 
 @router.post("/api/auth/register")
 def register(body: RegisterRequest, db: Session = Depends(get_db)):
+    if body.invite_code != INVITE_CODE:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Cod de invitație invalid")
+
     existing = db.query(User).filter(User.username == body.username).first()
     if existing:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username already taken")
