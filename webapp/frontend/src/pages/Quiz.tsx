@@ -43,6 +43,13 @@ export default function Quiz() {
           }
         });
         setAnswers(restored);
+        // Jump to first unanswered question when resuming
+        const firstUnanswered = data.questions.findIndex(
+          (q) => !q.answered && !q.user_answer
+        );
+        if (firstUnanswered > 0) {
+          setCurrentIndex(firstUnanswered);
+        }
       })
       .catch((err) =>
         setError(err instanceof Error ? err.message : "Eroare")

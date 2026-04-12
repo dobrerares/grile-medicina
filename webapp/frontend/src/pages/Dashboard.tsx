@@ -83,6 +83,9 @@ export default function Dashboard() {
 
   const hasData = stats && stats.total_answered > 0;
 
+  // In-progress sessions (not completed)
+  const inProgress = history.filter((s) => !s.completed_at);
+
   const topicData = stats?.by_topic
     ? Object.entries(stats.by_topic)
         .map(([key, val]) => ({
@@ -127,6 +130,53 @@ export default function Dashboard() {
       </header>
 
       {error && <div className="auth-error">{error}</div>}
+
+      {/* Resume in-progress quizzes — always visible */}
+      {inProgress.length > 0 && (
+        <div className="dash-section">
+          <h2 className="dash-section-title">Continua testul</h2>
+          <div className="resume-list">
+            {inProgress.map((s) => (
+              <div
+                key={s.session_id}
+                className="resume-card"
+                onClick={() => navigate(`/quiz/${s.session_id}`)}
+              >
+                <div className="resume-info">
+                  <span className="resume-type">
+                    {sessionTypeLabel(s.session_type)}
+                  </span>
+                  <span className="resume-date">
+                    {formatDate(s.started_at)}
+                  </span>
+                </div>
+                <div className="resume-progress">
+                  <div className="resume-progress-bar">
+                    <div
+                      className="resume-progress-fill"
+                      style={{
+                        width: `${
+                          s.total_questions
+                            ? Math.round(
+                                (s.answered / s.total_questions) * 100
+                              )
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                  <span className="resume-progress-text">
+                    {s.answered}/{s.total_questions}
+                  </span>
+                </div>
+                <button className="btn btn-primary btn-sm" type="button">
+                  Continua
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {!hasData ? (
         <div className="dash-empty">
@@ -222,7 +272,7 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {history.slice(0, 20).map((s) => (
+                    {history.filter((s) => s.completed_at).slice(0, 20).map((s) => (
                       <tr
                         key={s.session_id}
                         className="history-row"
