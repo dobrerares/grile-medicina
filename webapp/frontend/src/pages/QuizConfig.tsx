@@ -8,6 +8,7 @@ interface LocationState {
   years: number[];
   topics: string[];
   counts: AvailableCounts | null;
+  hideResults?: boolean;
 }
 
 const PRESETS = [
@@ -28,6 +29,7 @@ export default function QuizConfig() {
 
   const [csCount, setCsCount] = useState(Math.min(30, csMax));
   const [cgCount, setCgCount] = useState(0);
+  const [hideResults, setHideResults] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -59,7 +61,9 @@ export default function QuizConfig() {
       if (state?.topics?.length) filters.topics = state.topics;
 
       const result = await generateQuiz(filters);
-      navigate(`/quiz/${result.session_id}`);
+      navigate(`/quiz/${result.session_id}`, {
+        state: { hideResults },
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Eroare la generare quiz");
     } finally {
@@ -151,6 +155,24 @@ export default function QuizConfig() {
         <div className="total-selected">
           Total intrebari: <strong>{csCount + cgCount}</strong>
         </div>
+
+        <section className="filter-section">
+          <h2>Mod examen</h2>
+          <label className="exam-mode-toggle">
+            <span className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={hideResults}
+                onChange={(e) => setHideResults(e.target.checked)}
+              />
+              <span className="toggle-slider" />
+            </span>
+            <span>Ascunde rezultatele in timpul testului</span>
+          </label>
+          <p className="exam-mode-hint">
+            Raspunsurile corecte vor fi afisate doar dupa finalizarea quiz-ului.
+          </p>
+        </section>
 
         {error && <p className="auth-error">{error}</p>}
 

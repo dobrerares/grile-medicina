@@ -18,6 +18,7 @@ interface QuestionCardProps {
   result: AnswerResult | null;
   sourceFile?: string;
   pageRef?: string;
+  examMode?: boolean;
 }
 
 export default function QuestionCard({
@@ -28,6 +29,7 @@ export default function QuestionCard({
   result,
   sourceFile,
   pageRef,
+  examMode,
 }: QuestionCardProps) {
   const [showReport, setShowReport] = useState(false);
   const isCG = question.type === "complement_grupat";
@@ -153,7 +155,7 @@ export default function QuestionCard({
       )}
 
       <div className="question-actions">
-        {!confirmed && (
+        {!confirmed && !examMode && (
           <button
             className="btn btn-primary"
             onClick={onConfirm}

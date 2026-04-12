@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getQuiz, submitAnswer, completeQuiz } from "../api";
 import type { QuizDetail, SessionQuestion, AnswerResult } from "../types";
 import QuestionCard from "../components/QuestionCard";
@@ -8,6 +8,7 @@ import ComplementGrupatInfo from "../components/ComplementGrupatInfo";
 export default function Quiz() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [quiz, setQuiz] = useState<QuizDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -18,6 +19,11 @@ export default function Quiz() {
   const [pendingAnswer, setPendingAnswer] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [finishing, setFinishing] = useState(false);
+  const examMode =
+    (location.state as { hideResults?: boolean } | null)?.hideResults ?? false;
+  const [examSelections, setExamSelections] = useState<
+    Record<number, string>
+  >({});
   const timerRef = useRef<number>(Date.now());
 
   useEffect(() => {
@@ -109,6 +115,23 @@ export default function Quiz() {
     if (!sessionId) return;
     setFinishing(true);
     try {
+      if (examMode) {
+        // Submit all locally-stored answers at once
+        await Promise.all(
+          Object.entries(examSelections).map(([sqId, answer]) => {
+            const q = questions.find(
+              (q) => q.session_question_id === Number(sqId)
+            );
+            if (q) {
+              return submitAnswer(
+                Number(sessionId),
+                q.question_id,
+                answer
+              );
+            }
+          })
+        );
+      }
       await completeQuiz(Number(sessionId));
       navigate(`/quiz/${sessionId}/results`);
     } catch {
@@ -128,9 +151,11 @@ export default function Quiz() {
     return <div className="page-error">Quiz-ul nu a fost gasit.</div>;
   }
 
-  const answeredCount = questions.filter(
-    (q) => q.answered || answers[q.session_question_id]
-  ).length;
+  const answeredCount = examMode
+    ? Object.keys(examSelections).length
+    : questions.filter(
+        (q) => q.answered || answers[q.session_question_id]
+      ).length;
   const progressPct = Math.round((answeredCount / questions.length) * 100);
 
   // Extract source_file from question_id: e.g. "2025_celula_1_q1" → need from quiz data
@@ -151,9 +176,13 @@ export default function Quiz() {
             const ans = answers[q.session_question_id];
             let cls = "nav-btn";
             if (idx === currentIndex) cls += " nav-current";
-            if (ans) {
+            if (!examMode && ans) {
               cls += ans.result.is_correct ? " nav-correct" : " nav-wrong";
-            } else if (q.answered) {
+            } else if (
+              examMode
+                ? examSelections[q.session_question_id]
+                : ans || q.answered
+            ) {
               cls += " nav-answered";
             }
             return (
@@ -196,15 +225,30 @@ export default function Quiz() {
           <QuestionCard
             question={currentQuestion}
             selectedAnswer={
-              currentAnswer?.selected ?? pendingAnswer
+              examMode
+                ? examSelections[currentQuestion.session_question_id] ?? null
+                : currentAnswer?.selected ?? pendingAnswer
             }
             onSelectAnswer={(a) => {
-              if (!currentAnswer) setPendingAnswer(a);
+              if (examMode) {
+                const isFirst =
+                  !examSelections[currentQuestion.session_question_id];
+                setExamSelections((prev) => ({
+                  ...prev,
+                  [currentQuestion.session_question_id]: a,
+                }));
+                if (isFirst && currentIndex < questions.length - 1) {
+                  goTo(currentIndex + 1);
+                }
+              } else {
+                if (!currentAnswer) setPendingAnswer(a);
+              }
             }}
             onConfirm={handleConfirm}
-            result={currentAnswer?.result ?? null}
+            result={examMode ? null : (currentAnswer?.result ?? null)}
             sourceFile={currentQuestion.source_file}
             pageRef={currentQuestion.page_ref}
+            examMode={examMode}
           />
         )}
 
