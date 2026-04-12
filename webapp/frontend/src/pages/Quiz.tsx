@@ -25,6 +25,7 @@ export default function Quiz() {
     Record<number, string>
   >({});
   const timerRef = useRef<number>(Date.now());
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -143,6 +144,7 @@ export default function Quiz() {
   function goTo(idx: number) {
     setPendingAnswer(null);
     setCurrentIndex(idx);
+    setSidebarOpen(false);
   }
 
   if (loading) return <div className="loading">Se incarca quiz-ul...</div>;
@@ -164,12 +166,26 @@ export default function Quiz() {
 
   return (
     <div className="quiz-page">
-      <div className="quiz-sidebar">
+      {sidebarOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      <div className={`quiz-sidebar${sidebarOpen ? " sidebar-open" : ""}`}>
         <div className="sidebar-header">
           <h3>Intrebari</h3>
           <span className="sidebar-progress">
             {answeredCount}/{questions.length}
           </span>
+          <button
+            className="sidebar-close-btn"
+            onClick={() => setSidebarOpen(false)}
+            type="button"
+            aria-label="Inchide"
+          >
+            &times;
+          </button>
         </div>
         <div className="question-nav-grid">
           {questions.map((q, idx) => {
@@ -199,6 +215,17 @@ export default function Quiz() {
         </div>
         <ComplementGrupatInfo />
       </div>
+
+      <button
+        className="sidebar-toggle"
+        onClick={() => setSidebarOpen(true)}
+        type="button"
+      >
+        <span className="sidebar-toggle-grid">&#9783;</span>
+        <span className="sidebar-toggle-count">
+          {answeredCount}/{questions.length}
+        </span>
+      </button>
 
       <div className="quiz-main">
         <div className="quiz-top-bar">
