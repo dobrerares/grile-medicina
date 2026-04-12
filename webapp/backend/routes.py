@@ -9,7 +9,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from auth import create_access_token, get_current_user, hash_password, verify_password
+from auth import create_access_token, get_current_user, hash_password, verify_password, is_admin
 from database import get_db
 from models import QuizAnswer, QuizSession, QuizSessionQuestion, User
 import quiz as quiz_service
@@ -90,7 +90,12 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
 
 @router.get("/api/auth/me")
 def me(current_user: User = Depends(get_current_user)):
-    return {"id": current_user.id, "username": current_user.username, "created_at": current_user.created_at.isoformat()}
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "created_at": current_user.created_at.isoformat(),
+        "is_admin": is_admin(current_user),
+    }
 
 
 # ---------- Data endpoints ----------
