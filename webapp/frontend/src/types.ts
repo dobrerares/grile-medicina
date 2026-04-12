@@ -91,6 +91,7 @@ export interface HistorySession {
 export interface User {
   id: number;
   username: string;
+  is_admin?: boolean;
 }
 
 export interface AvailableCounts {
@@ -108,4 +109,38 @@ export interface WeakQuestion {
   total_attempts: number;
   wrong_count: number;
   error_rate: number;
+}
+
+export interface BugReport {
+  id: number;
+  user_id: number;
+  username: string | null;
+  question_id: string | null;
+  category: string;
+  description: string;
+  screenshot_path: string | null;
+  status: string;
+  created_at: string;
+  question_data: {
+    text: string;
+    choices: Record<string, string>;
+    correct_answer: string | null;
+    type: string;
+    source_file: string;
+    year: number;
+    topic: string;
+    page_ref: string | null;
+  } | null;
+}
+
+export interface GrileInfo {
+  file_size: number;
+  last_modified: string;
+  total_questions: number;
+  source_count: number;
+}
+
+export interface PdfFile {
+  filename: string;
+  size: number;
 }

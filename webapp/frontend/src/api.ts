@@ -1,7 +1,10 @@
 import type {
   AnswerResult,
   AvailableCounts,
+  BugReport,
+  GrileInfo,
   HistorySession,
+  PdfFile,
   QuizDetail,
   Source,
   Stats,
@@ -158,6 +161,117 @@ export async function getHistory(): Promise<HistorySession[]> {
 
 export async function getWeakest(): Promise<WeakQuestion[]> {
   return api.get("/stats/weakest");
+}
+
+// --- Bug Reports (user) ---
+
+export async function submitReport(data: FormData): Promise<{ status: string; id: number }> {
+  const token = getToken();
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  const res = await fetch("/api/reports", {
+    method: "POST",
+    headers,
+    body: data,
+  });
+  if (res.status === 401) {
+    clearToken();
+    window.location.href = "/login";
+    throw new Error("Unauthorized");
+  }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Request failed (${res.status})`);
+  }
+  return res.json();
+}
+
+// --- Admin ---
+
+export async function getGrileInfo(): Promise<GrileInfo> {
+  return api.get("/admin/grile-info");
+}
+
+export async function uploadGrile(file: File): Promise<{ status: string; total_questions: number; source_count: number }> {
+  const token = getToken();
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch("/api/admin/upload-grile", {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Upload failed (${res.status})`);
+  }
+  return res.json();
+}
+
+export async function getAdminPdfs(): Promise<PdfFile[]> {
+  return api.get("/admin/pdfs");
+}
+
+export async function uploadPdf(file: File): Promise<{ status: string; filename: string }> {
+  const token = getToken();
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch("/api/admin/upload-pdf", {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Upload failed (${res.status})`);
+  }
+  return res.json();
+}
+
+export async function adminDeletePdf(filename: string): Promise<{ status: string }> {
+  const token = getToken();
+  const res = await fetch(`/api/admin/pdf/${encodeURIComponent(filename)}`, {
+    method: "DELETE",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Delete failed (${res.status})`);
+  }
+  return res.json();
+}
+
+export async function getAdminReports(status?: string): Promise<BugReport[]> {
+  const query = status ? `?status=${status}` : "";
+  return api.get(`/admin/reports${query}`);
+}
+
+export async function resolveReport(id: number): Promise<{ status: string }> {
+  const token = getToken();
+  const res = await fetch(`/api/admin/reports/${id}`, {
+    method: "PATCH",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed (${res.status})`);
+  }
+  return res.json();
+}
+
+export async function deleteReport(id: number): Promise<{ status: string }> {
+  const token = getToken();
+  const res = await fetch(`/api/admin/reports/${id}`, {
+    method: "DELETE",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed (${res.status})`);
+  }
+  return res.json();
 }
 
 export default api;
