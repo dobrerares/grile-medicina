@@ -11,6 +11,8 @@ services:
       - PDF_PATH=/data/pdfs
       - DB_PATH=/app/data/quiz.db
       - INVITE_CODE=${INVITE_CODE:-grile2025}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-}
+      - SCREENSHOT_PATH=/app/data/screenshots
 
   frontend:
     build: webapp/frontend
