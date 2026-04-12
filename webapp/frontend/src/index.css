@@ -23,8 +23,8 @@
     --color-border: #2d3148;
     --color-error: #f87171;
     --color-error-bg: #2d1b1b;
-    --color-success: #86efac;
-    --color-success-bg: #14532d;
+    --color-success: #4ade80;
+    --color-success-bg: #052e16;
     --color-warning: #fbbf24;
     --color-warning-bg: #2e2510;
     --shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -433,7 +433,8 @@ body {
 }
 
 .topic-label,
-.year-label {
+.year-label,
+.page-label {
   font-size: 0.75rem;
   color: var(--color-text-muted);
   background: var(--color-bg-muted);

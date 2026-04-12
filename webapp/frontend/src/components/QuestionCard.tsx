@@ -92,6 +92,9 @@ export default function QuestionCard({
         {question.year && (
           <span className="year-label">{question.year}</span>
         )}
+        {pageRef && (
+          <span className="page-label">{pageRef}</span>
+        )}
         <button
           className="report-flag-btn"
           onClick={() => setShowReport(true)}
