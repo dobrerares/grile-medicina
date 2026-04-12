@@ -2,10 +2,12 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY webapp/backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY webapp/backend/ .
+COPY output/grile.json /data/grile.json
+COPY pdfs /data/pdfs
 
 EXPOSE 8000
 

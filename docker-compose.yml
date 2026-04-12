@@ -1,9 +1,9 @@
 services:
   backend:
-    build: webapp/backend
+    build:
+      context: .
+      dockerfile: webapp/backend/Dockerfile
     volumes:
-      - ./output/grile.json:/data/grile.json:ro
-      - ./pdfs:/data/pdfs:ro
       - sqlite_data:/app/data
     environment:
       - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
