@@ -5,7 +5,6 @@ extracted/mistral/*.json
 extracted/normalized/
 parsed/*.json
 parsed/deduped/
-output/*.json
 pdfs/*.pdf
 *.pyc
 .env
