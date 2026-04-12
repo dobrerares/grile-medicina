@@ -7,6 +7,7 @@ import QuizSetup from "./pages/QuizSetup";
 import QuizConfig from "./pages/QuizConfig";
 import Quiz from "./pages/Quiz";
 import Results from "./pages/Results";
+import Admin from "./pages/Admin";
 import type { ReactNode } from "react";
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -65,6 +66,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Quiz />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <Admin />
           </ProtectedRoute>
         }
       />

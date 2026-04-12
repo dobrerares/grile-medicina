@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { getStats, getHistory, getWeakest, generateQuiz, generateReviewQuiz } from "../api";
 import type { Stats, HistorySession, WeakQuestion } from "../types";
 import StatsCharts from "../components/StatsCharts";
+import ReportModal from "../components/ReportModal";
 
 function formatTopic(raw: string): string {
   return raw.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
@@ -26,9 +27,10 @@ function sessionTypeLabel(t: string): string {
 }
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
 
+  const [showReport, setShowReport] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
   const [history, setHistory] = useState<HistorySession[]>([]);
   const [weakest, setWeakest] = useState<WeakQuestion[]>([]);
@@ -112,9 +114,16 @@ export default function Dashboard() {
           <h1>Bine ai venit, {user?.username}!</h1>
           <p className="dash-subtitle">Panou de control</p>
         </div>
-        <button className="btn btn-secondary" onClick={logout}>
-          Deconectare
-        </button>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          {isAdmin && (
+            <button className="btn btn-secondary" onClick={() => navigate("/admin")}>
+              Admin
+            </button>
+          )}
+          <button className="btn btn-secondary" onClick={logout}>
+            Deconectare
+          </button>
+        </div>
       </header>
 
       {error && <div className="auth-error">{error}</div>}
@@ -177,6 +186,9 @@ export default function Dashboard() {
                 onClick={() => navigate("/quiz/setup")}
               >
                 Test nou
+              </button>
+              <button className="btn btn-secondary" onClick={() => setShowReport(true)}>
+                Raporteaza o problema
               </button>
             </div>
           </div>
@@ -278,6 +290,12 @@ export default function Dashboard() {
             </div>
           )}
         </>
+      )}
+      {showReport && (
+        <ReportModal
+          onClose={() => setShowReport(false)}
+          defaultCategory="app_bug"
+        />
       )}
     </div>
   );
