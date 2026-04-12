@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-04-11T23:07:23.692569+00:00",
+  "generated_at": "2026-04-12T12:31:57.762330+00:00",
   "sources": [
     {
       "file": "BIOL 2025-",
@@ -5926,982 +5926,349 @@
             {
               "id": "2025_digestia_1_q23",
               "number": 23,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "Este o glandă anexă a tubului digestiv:",
-              "choices": {},
+              "choices": {
+                "1": "Ficatul",
+                "2": "Parotida",
+                "3": "Pancreasul",
+                "4": "Splina"
+              },
               "correct_answer": "A",
-              "correct_statements": null,
+              "correct_statements": [
+                1,
+                2,
+                3
+              ],
               "page_ref": "pag. 75, 89"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Ficatul",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Parotida",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Pancreasul",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "Splina",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q24",
               "number": 24,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "Activitatea motorie a cavității bucale constă din:",
-              "choices": {},
+              "choices": {
+                "1": "Secreția ptialinei",
+                "2": "Timpul bucal al deglutiției",
+                "3": "Elaborarea senzației gustative",
+                "4": "Masticație"
+              },
               "correct_answer": "C",
-              "correct_statements": null,
+              "correct_statements": [
+                2,
+                4
+              ],
               "page_ref": "pag. 75"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Secreția ptialinei",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Timpul bucal al deglutiției",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Elaborarea senzației gustative",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "Masticație",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q25",
               "number": 25,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "În salivă, concentrația următorului electrolit este mai mică decât în plasmă:",
-              "choices": {},
+              "choices": {
+                "1": "Na+",
+                "2": "Cl-",
+                "3": "Ca2+",
+                "4": "HCO3-"
+              },
               "correct_answer": "E",
               "correct_statements": null,
               "page_ref": "pag. 75"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Na+",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Cl-",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Ca2+",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "HCO3-",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q26",
               "number": 26,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "Printre funcțiile digestive ale salivei se enumeră:",
-              "choices": {},
+              "choices": {
+                "1": "Menținerea echilibrului hidroelectrolitic",
+                "2": "Răcirea alimentelor fierbinți",
+                "3": "Excreția de uree",
+                "4": "Digestia chimică a amidonului preparat"
+              },
               "correct_answer": "D",
-              "correct_statements": null,
+              "correct_statements": [
+                4
+              ],
               "page_ref": "pag. 75"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Menținerea echilibrului hidroelectrolitic",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Răcirea alimentelor fierbinți",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Excreția de uree",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "Digestia chimică a amidonului preparat",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q27",
               "number": 27,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "Procesul deglutiției include un timp:",
-              "choices": {},
+              "choices": {
+                "1": "Esofagian",
+                "2": "Bucal",
+                "3": "Faringian",
+                "4": "Voluntar"
+              },
               "correct_answer": "E",
               "correct_statements": null,
               "page_ref": "pag. 76"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Esofagian",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Bucal",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Faringian",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "Voluntar",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q28",
               "number": 28,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "Este caracteristic timpului faringian al deglutiției:",
-              "choices": {},
+              "choices": {
+                "1": "Relaxarea stomacului și parțial a duodenului",
+                "2": "Inhibarea centrului respirator bulbar",
+                "3": "Peristaltism coordonat de sistemul nervos enteric",
+                "4": "Implicarea în contractie a unor arii din trunchiul cerebral"
+              },
               "correct_answer": "C",
-              "correct_statements": null,
+              "correct_statements": [
+                2,
+                4
+              ],
               "page_ref": "pag. 76"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Relaxarea stomacului și parțial a duodenului",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Inhibarea centrului respirator bulbar",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Peristaltism coordonat de sistemul nervos enteric",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "Implicarea în contractie a unor arii din trunchiul cerebral",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q29",
               "number": 29,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "Este caracteristic sfîncterului esofagian:",
-              "choices": {},
+              "choices": {
+                "1": "Are contractie tonică",
+                "2": "Este reprezentat de musculatură circulară"
+              },
               "correct_answer": "E",
               "correct_statements": null,
               "page_ref": "pag. 76"
             },
             {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Are contractie tonică",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Este reprezentat de musculatură circulară",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
               "id": "2025_digestia_1_q36",
               "number": 36,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "Activarea pepsinogenului se realizează:",
-              "choices": {},
+              "choices": {
+                "1": "În vederea lidrolizării lipidelor",
+                "2": "Prin contact cu pepsina anterior formată",
+                "3": "Prin transformarea cazeinogenului solubil",
+                "4": "Într-un pH optim de 1,8-3,5"
+              },
               "correct_answer": "C",
-              "correct_statements": null,
+              "correct_statements": [
+                2,
+                4
+              ],
               "page_ref": "pag. 77"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "În vederea lidrolizării lipidelor",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Prin contact cu pepsina anterior formată",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Prin transformarea cazeinogenului solubil",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "Într-un pH optim de 1,8-3,5",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q37",
               "number": 37,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "La nivel intestinal, chimul se deplasează:",
-              "choices": {},
+              "choices": {
+                "1": "În direcție anală",
+                "2": "Mai lent în intestinul proximal",
+                "3": "Ca urmare a peristaltismului",
+                "4": "Mai rapid în intestinul terminal"
+              },
               "correct_answer": "A",
-              "correct_statements": null,
+              "correct_statements": [
+                1,
+                2,
+                3
+              ],
               "page_ref": "firmațiile adevărate sunt următoarele:"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "În direcție anală",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Mai lent în intestinul proximal",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Ca urmare a peristaltismului",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "Mai rapid în intestinul terminal",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q38",
               "number": 38,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "Enzimele produse la nivel pancreatic:",
-              "choices": {},
+              "choices": {
+                "1": "Sunt secrete de celulele ductale",
+                "2": "Pot digera acizi nucleici",
+                "3": "Au rol de a neutraliza aciditatea gastrică",
+                "4": "Sunt eliberate de celule organizate în acini"
+              },
               "correct_answer": "C",
-              "correct_statements": null,
+              "correct_statements": [
+                2,
+                4
+              ],
               "page_ref": "pag. 78"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Sunt secrete de celulele ductale",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Pot digera acizi nucleici",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Au rol de a neutraliza aciditatea gastrică",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "Sunt eliberate de celule organizate în acini",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q39",
               "number": 39,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "Alegeți afirmația adevărată despre concentrația electrolitilor:",
-              "choices": {},
+              "choices": {
+                "1": "HCO3- este mai concentrat în plasmă decât în secreția pancreatică",
+                "2": "Na+ este mai concentrat în secreția pancreatică decât în salivă",
+                "3": "Cl- este mai concentrat în secreția salivară decât în plasmă",
+                "4": "K+ este mai concentrat în secreția salivară decât în cea pancreatică"
+              },
               "correct_answer": "C",
-              "correct_statements": null,
+              "correct_statements": [
+                2,
+                4
+              ],
               "page_ref": "pag. 75, 78"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "HCO3- este mai concentrat în plasmă decât în secreția pancreatică",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Na+ este mai concentrat în secreția pancreatică decât în salivă",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Cl- este mai concentrat în secreția salivară decât în plasmă",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "K+ este mai concentrat în secreția salivară decât în cea pancreatică",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q40",
               "number": 40,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "Enzima pancreatică secretată în formă activă este:",
-              "choices": {},
+              "choices": {
+                "1": "Fosfolipaza",
+                "2": "Tripsina",
+                "3": "α amilaza",
+                "4": "chimotripsina"
+              },
               "correct_answer": "A",
-              "correct_statements": null,
+              "correct_statements": [
+                1,
+                2,
+                3
+              ],
               "page_ref": "firmațiile false sunt:"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Fosfolipaza",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Tripsina",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "α amilaza",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "chimotripsina",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q41",
               "number": 41,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "Substratul asupra căruia acționează α amilaza pancreatică este:",
-              "choices": {},
+              "choices": {
+                "1": "Amidonul",
+                "2": "Celuloza",
+                "3": "Glicogenul",
+                "4": "Esterii"
+              },
               "correct_answer": "B",
-              "correct_statements": null,
+              "correct_statements": [
+                1,
+                3
+              ],
               "page_ref": "pag. 78"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Amidonul",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Celuloza",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Glicogenul",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "Esterii",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q42",
               "number": 42,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "Sunt substanțe insolubile:",
-              "choices": {},
+              "choices": {
+                "1": "Bilirubina",
+                "2": "Paracazeinatul de calciu",
+                "3": "Colesterolul",
+                "4": "Cazeinogenul"
+              },
               "correct_answer": "A",
-              "correct_statements": null,
+              "correct_statements": [
+                1,
+                2,
+                3
+              ],
               "page_ref": "pag. 77, 78"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Bilirubina",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Paracazeinatul de calciu",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Colesterolul",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "Cazeinogenul",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q50",
               "number": 50,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "Selectați perechea corectă de substrat-produs rezultat în cadrul digestiei:",
-              "choices": {},
+              "choices": {
+                "1": "Amidon – dizaharide",
+                "2": "Gelatină – glicerol",
+                "3": "Tripeptid – aminoacizi",
+                "4": "Izomaltoză – maltoză"
+              },
               "correct_answer": "B",
-              "correct_statements": null,
+              "correct_statements": [
+                1,
+                3
+              ],
               "page_ref": "pag. 80, tabel"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Amidon – dizaharide",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Gelatină – glicerol",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Tripeptid – aminoacizi",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "Izomaltoză – maltoză",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q51",
               "number": 51,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "Selectați produșii care pot fi obținuți în urma acțiunii enzimelor digestive în stomac:",
-              "choices": {},
+              "choices": {
+                "1": "Glucoză",
+                "2": "Paracazeinat de calciu",
+                "3": "Lipide emulsionate",
+                "4": "Acizi grași"
+              },
               "correct_answer": "C",
-              "correct_statements": null,
+              "correct_statements": [
+                2,
+                4
+              ],
               "page_ref": "pag. 80, tabel"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Glucoză",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Paracazeinat de calciu",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Lipide emulsionate",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "Acizi grași",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q52",
               "number": 52,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "În urma digestiei, din lactoză se obține:",
-              "choices": {},
+              "choices": {
+                "1": "Glucoză",
+                "2": "Fructoză",
+                "3": "Galactoză",
+                "4": "Maltoză"
+              },
               "correct_answer": "A",
-              "correct_statements": null,
+              "correct_statements": [
+                1,
+                2,
+                3
+              ],
               "page_ref": "firmațiile adevărate sunt:"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Glucoză",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Fructoză",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Galactoză",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "Maltoză",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q53",
               "number": 53,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "Aminoacizii pot fi obținuți prin acțiunea enzimei:",
-              "choices": {},
+              "choices": {
+                "1": "Pepsină",
+                "2": "Chimotripsină",
+                "3": "Tripsină",
+                "4": "Peptidază intestinală"
+              },
               "correct_answer": "E",
               "correct_statements": null,
               "page_ref": "pag. 80, tabel"
             },
             {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Pepsină",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Chimotripsină",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Tripsină",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "Peptidază intestinală",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
-            },
-            {
               "id": "2025_digestia_1_q54",
               "number": 54,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "La nivelul intestinului subțire, absorbția moleculelor este favorizată de:",
-              "choices": {},
+              "choices": {
+                "1": "Suprafața mare de contact",
+                "2": "Grosimea mare a peretelui",
+                "3": "Rețeaua vasculară bogată",
+                "4": "Dimensiunea mare a moleculelor"
+              },
               "correct_answer": "B",
-              "correct_statements": null,
+              "correct_statements": [
+                1,
+                3
+              ],
               "page_ref": "pag. 80"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "Suprafața mare de contact",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "Grosimea mare a peretelui",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "Rețeaua vasculară bogată",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "Dimensiunea mare a moleculelor",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             },
             {
               "id": "2025_digestia_1_q55",
               "number": 55,
-              "type": "complement_simplu",
+              "type": "complement_grupat",
               "text": "O dietă normală include:",
-              "choices": {},
+              "choices": {
+                "1": "50-60% glucide",
+                "2": "25-160 g lipide",
+                "3": "0,5-0,7 g proteine per kilogram corp",
+                "4": "250-800 g glucide pe zi"
+              },
               "correct_answer": "E",
               "correct_statements": null,
               "page_ref": "pag. 80, 81"
-            },
-            {
-              "id": "2025_digestia_1_q1",
-              "number": 1,
-              "type": "complement_simplu",
-              "text": "50-60% glucide",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera splenică"
-            },
-            {
-              "id": "2025_digestia_1_q2",
-              "number": 2,
-              "type": "complement_simplu",
-              "text": "25-160 g lipide",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "alcemie 8,5-10,3 mg/L"
-            },
-            {
-              "id": "2025_digestia_1_q3",
-              "number": 3,
-              "type": "complement_simplu",
-              "text": "0,5-0,7 g proteine per kilogram corp",
-              "choices": {},
-              "correct_answer": "C",
-              "correct_statements": null,
-              "page_ref": "urgerea continuă a sângelui prin artere se datorează contractilității"
-            },
-            {
-              "id": "2025_digestia_1_q4",
-              "number": 4,
-              "type": "complement_simplu",
-              "text": "250-800 g glucide pe zi",
-              "choices": {},
-              "correct_answer": "A",
-              "correct_statements": null,
-              "page_ref": "rtera testiculară/ovariană"
             }
           ]
         },
@@ -20303,7 +19670,7 @@
       "D": "only 4 correct",
       "E": "all correct or all false"
     },
-    "total_questions": 1228,
+    "total_questions": 1150,
     "total_sources": 1
   }
 }

@@ -1301,15 +1301,18 @@ def parse_file(filepath: Path) -> dict:
                 pending_topic_change = False
                 current_complement = None  # Auto-detect from choices
 
-        # --- Auto-detect complement type if missing ---
-        if current_complement is None and RE_QUESTION_START.match(stripped):
+        # --- Auto-detect complement type if missing or mismatched ---
+        if current_complement in (None, "complement_simplu") and RE_QUESTION_START.match(stripped):
             # Look ahead for choice patterns to determine type
             for la in range(i, min(i + 8, len(lines))):
                 la_stripped = lines[la].strip()
                 if not la_stripped:
                     continue
+                if RE_PAGE_MARKER.match(la_stripped) or RE_PAGE_NUMBER.match(la_stripped):
+                    continue
                 if RE_CHOICE_SIMPLU.match(la_stripped):
-                    current_complement = "complement_simplu"
+                    if current_complement is None:
+                        current_complement = "complement_simplu"
                     break
                 if RE_CHOICE_GRUPAT.match(la_stripped):
                     current_complement = "complement_grupat"
