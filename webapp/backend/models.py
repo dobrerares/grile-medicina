@@ -53,3 +53,18 @@ class QuizAnswer(Base):
     answered_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     session_question = relationship("QuizSessionQuestion", back_populates="answers")
+
+
+class BugReport(Base):
+    __tablename__ = "bug_reports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    question_id = Column(String, nullable=True)
+    category = Column(String, nullable=False)
+    description = Column(Text, nullable=False)
+    screenshot_path = Column(String, nullable=True)
+    status = Column(String, nullable=False, default="open")
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    user = relationship("User")
