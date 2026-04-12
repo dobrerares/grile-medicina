@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
 import QuizSetup from "./pages/QuizSetup";
 import QuizConfig from "./pages/QuizConfig";
 import Quiz from "./pages/Quiz";
@@ -22,15 +23,6 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-function Placeholder({ title }: { title: string }) {
-  return (
-    <div style={{ padding: "2rem" }}>
-      <h1>{title}</h1>
-      <p>In constructie.</p>
-    </div>
-  );
-}
-
 function AppRoutes() {
   return (
     <Routes>
@@ -40,7 +32,7 @@ function AppRoutes() {
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <Placeholder title="Dashboard" />
+            <Dashboard />
           </ProtectedRoute>
         }
       />
