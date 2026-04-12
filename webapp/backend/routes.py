@@ -7,6 +7,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from auth import create_access_token, get_current_user, hash_password, verify_password, is_admin
@@ -402,6 +403,58 @@ def get_stats(current_user: User = Depends(get_current_user), db: Session = Depe
             if is_correct:
                 by_year[year]["correct"] += 1
 
+    # Compute study streak: consecutive days with at least one completed session
+    import datetime as _dt
+    completed_dates = (
+        db.query(func.date(QuizSession.completed_at))
+        .filter(QuizSession.user_id == current_user.id, QuizSession.completed_at.isnot(None))
+        .distinct()
+        .order_by(func.date(QuizSession.completed_at).desc())
+        .all()
+    )
+    study_streak = 0
+    today = _dt.date.today()
+    check_date = today
+    for (d,) in completed_dates:
+        if isinstance(d, str):
+            d = _dt.date.fromisoformat(d)
+        if d == check_date:
+            study_streak += 1
+            check_date -= _dt.timedelta(days=1)
+        elif d < check_date:
+            break
+
+    # Compute accuracy trend: this month vs last month
+    now = _dt.datetime.utcnow()
+    first_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    first_of_last_month = (first_of_month - _dt.timedelta(days=1)).replace(day=1)
+
+    def _month_accuracy(start: _dt.datetime, end: _dt.datetime) -> float | None:
+        month_rows = (
+            db.query(QuizSessionQuestion.question_id, QuizAnswer.user_answer)
+            .join(QuizAnswer, QuizAnswer.session_question_id == QuizSessionQuestion.id)
+            .join(QuizSession, QuizSession.id == QuizSessionQuestion.session_id)
+            .filter(
+                QuizSession.user_id == current_user.id,
+                QuizAnswer.answered_at >= start,
+                QuizAnswer.answered_at < end,
+            )
+            .all()
+        )
+        if not month_rows:
+            return None
+        m_correct = sum(
+            1 for qid, ua in month_rows
+            if (qq := quiz_service.get_question(qid)) and qq.get("correct_answer") == ua
+        )
+        return m_correct / len(month_rows)
+
+    this_month_acc = _month_accuracy(first_of_month, now)
+    last_month_acc = _month_accuracy(first_of_last_month, first_of_month)
+    accuracy_trend = 0.0
+    if this_month_acc is not None and last_month_acc is not None and last_month_acc > 0:
+        accuracy_trend = this_month_acc - last_month_acc
+
     return {
         "total_answered": total,
         "total_correct": correct,
@@ -414,6 +467,8 @@ def get_stats(current_user: User = Depends(get_current_user), db: Session = Depe
             k: {**v, "accuracy": v["correct"] / v["total"] if v["total"] > 0 else 0}
             for k, v in sorted(by_year.items())
         },
+        "study_streak": study_streak,
+        "accuracy_trend": accuracy_trend,
     }
 
 
